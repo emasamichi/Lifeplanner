@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LifePlanner">
+<title>LifePlanner</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: #0f1117; color: #eee; font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif; overflow: hidden; }
+  #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+
+  /* ── Header ── */
+  #header { background: #161b27; border-bottom: 1px solid #2a2f45; position: sticky; top: 0; z-index: 100; flex-shrink: 0; }
+  #header-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 6px; }
+  #app-title { font-weight: 800; font-size: 18px; letter-spacing: 1px; color: #4f8ef7; }
+  #date-nav { display: flex; align-items: center; gap: 6px; }
+  #date-label { font-size: 13px; color: #ccc; min-width: 94px; text-align: center; }
+  .nav-btn { background: #252d3f; border: none; color: #ccc; border-radius: 6px; padding: 4px 10px; font-size: 16px; cursor: pointer; }
+  .today-btn { font-size: 11px !important; }
+  #tab-row { display: flex; border-top: 1px solid #2a2f45; }
+  .tab { flex: 1; padding: 9px 4px; border: none; background: transparent; color: #888; font-size: 12px; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
+  .tab.active { color: #4f8ef7; border-bottom: 2px solid #4f8ef7; background: #0f1117; }
+
+  /* ── Main ── */
+  #main { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 40px; }
+  .view { display: none; padding: 12px 16px; }
+  .view.active { display: block; }
+
+  /* ── Section titles ── */
+  .sec-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
+
+  /* ── Log section ── */
+  #log-btn-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+  .log-btn { background: #252d3f; border: 1px solid #3a4260; color: #b0c4ff; border-radius: 20px; padding: 6px 13px; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .log-btn:active { opacity: 0.7; }
+  #custom-log-row { display: flex; gap: 6px; }
+
+  /* ── 24h Grid ── */
+  #grid-outer { height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; background: #0f1117; border-radius: 10px; border: 1px solid #2a2f45; margin-bottom: 12px; }
+  #grid-inner { position: relative; }
+  .hour-row { position: absolute; left: 0; right: 0; display: flex; align-items: center; pointer-events: none; }
+  .hour-label { font-size: 10px; color: #555; width: 40px; text-align: right; padding-right: 6px; flex-shrink: 0; }
+  .hour-line { flex: 1; height: 1px; background: #1e2535; }
+  .ev-block { position: absolute; left: 46px; right: 50px; border-radius: 6px; padding: 4px 8px; display: flex; flex-direction: column; overflow: hidden; z-index: 2; }
+  .ev-title { font-size: 11px; font-weight: 700; color: #fff; }
+  .ev-sub { font-size: 10px; color: rgba(255,255,255,0.6); }
+  .log-dot { position: absolute; right: 4px; left: 46px; display: flex; align-items: center; gap: 4px; z-index: 3; }
+  .log-dot-line { position: absolute; left: 0; right: 0; height: 1px; background: #f7c94f; opacity: 0.5; }
+  .log-dot-label { background: #f7c94f; color: #111; border-radius: 10px; padding: 1px 7px; font-size: 10px; font-weight: 700; z-index: 4; position: relative; white-space: nowrap; }
+  #now-line { position: absolute; left: 0; right: 0; height: 2px; background: #f75f5f; z-index: 10; pointer-events: none; }
+
+  /* ── Today tasks ── */
+  #today-tasks { margin-bottom: 12px; }
+  .today-task { padding: 6px 10px; background: #161b27; border-radius: 6px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+  /* ── Event form ── */
+  .ev-form { background: #161b27; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .form-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lbl { font-size: 12px; color: #888; }
+
+  /* ── Goals ── */
+  #goals-view { display: flex; flex-direction: column; gap: 12px; }
+  .goal-card { background: #161b27; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .goal-header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .goal-title { font-weight: 700; font-size: 15px; color: #eee; }
+  .prog-wrap { margin-top: 5px; height: 6px; background: #252d3f; border-radius: 3px; position: relative; width: 200px; max-width: 100%; }
+  .prog-bar { height: 100%; border-radius: 3px; transition: width 0.4s; }
+  .prog-label { position: absolute; right: -30px; top: -4px; font-size: 10px; color: #888; }
+  .task-card { background: #0f1117; border-radius: 8px; padding: 10px; margin-top: 4px; }
+  .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .task-title { font-size: 13px; color: #ccc; }
+  .sub-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; }
+  .sub-title { font-size: 12px; flex: 1; }
+  .sub-date { font-size: 10px; color: #888; }
+  .inline-form { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+
+  /* ── Quick ── */
+  .add-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .quick-item { display: flex; align-items: center; gap: 8px; padding: 9px 10px; background: #161b27; border-radius: 8px; margin-bottom: 6px; }
+  .quick-title { flex: 1; font-size: 14px; }
+
+  /* ── Shared inputs/buttons ── */
+  input[type=text], input[type=date], input[type=number] {
+    background: #252d3f; border: 1px solid #3a4260; color: #eee;
+    border-radius: 8px; padding: 7px 10px; font-size: 13px;
+    outline: none; font-family: inherit; width: 100%;
+  }
+  input[type=number] { width: 56px; }
+  input[type=color] { background: none; border: none; width: 32px; height: 32px; cursor: pointer; padding: 0; }
+  input[type=checkbox] { width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+  .btn-primary { background: #4f8ef7; border: none; color: #fff; border-radius: 8px; padding: 8px 16px; font-size: 13px; cursor: pointer; font-weight: 600; font-family: inherit; white-space: nowrap; }
+  .btn-sm { background: #252d3f; border: 1px solid #3a4260; color: #ccc; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .btn-xs { background: #252d3f; border: 1px solid #3a4260; color: #ccc; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-family: inherit; }
+  .del-btn { background: none; border: none; color: #555; cursor: pointer; font-size: 16px; padding: 0 3px; flex-shrink: 0; }
+  .icon-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 13px; padding: 2px 5px; }
+  .btn-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .hidden { display: none !important; }
+  .mt8 { margin-top: 8px; }
+  .mt16 { margin-top: 16px; }
+  .flex1 { flex: 1; }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- HEADER -->
+  <div id="header">
+    <div id="header-top">
+      <span id="app-title">LifePlanner</span>
+      <div id="date-nav">
+        <button class="nav-btn" onclick="navDate(-1)">‹</button>
+        <span id="date-label"></span>
+        <button class="nav-btn" onclick="navDate(1)">›</button>
+        <button class="nav-btn today-btn" onclick="goToday()">今日</button>
+      </div>
+    </div>
+    <div id="tab-row">
+      <button class="tab active" onclick="switchTab('calendar')">📅 カレンダー</button>
+      <button class="tab" onclick="switchTab('goals')">🎯 目標</button>
+      <button class="tab" onclick="switchTab('quick')">✅ クイックToDo</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- ── CALENDAR VIEW ── -->
+    <div id="view-calendar" class="view active">
+      <!-- Log section -->
+      <div style="margin-bottom:12px">
+        <div class="sec-title">⚡ 瞬間ログ</div>
+        <div id="log-btn-row"></div>
+        <div id="custom-log-row">
+          <input type="text" id="custom-log-input" placeholder="カスタム…" style="flex:1" onkeydown="if(event.key==='Enter')addCustomLog()">
+          <button class="btn-sm" onclick="addCustomLog()">追加</button>
+        </div>
+      </div>
+      <!-- Today tasks -->
+      <div id="today-tasks-wrap" style="margin-bottom:12px">
+        <div class="sec-title">📋 今日のタスク</div>
+        <div id="today-tasks"></div>
+      </div>
+      <!-- 24h grid -->
+      <div id="grid-outer">
+        <div id="grid-inner"></div>
+      </div>
+      <!-- Add event -->
+      <div id="add-ev-section">
+        <button class="btn-primary" onclick="showEvForm(true)">＋ 予定を追加</button>
+        <div id="ev-form" class="ev-form hidden mt8">
+          <input type="text" id="ev-title" placeholder="予定名">
+          <div class="form-row">
+            <span class="lbl">開始</span>
+            <input type="number" id="ev-hour" value="9" min="0" max="23">
+            <span class="lbl">:</span>
+            <input type="number" id="ev-min" value="0" min="0" max="59">
+            <span class="lbl">時間(分)</span>
+            <input type="number" id="ev-dur" value="60" min="15" max="480">
+          </div>
+          <div class="form-row">
+            <span class="lbl">色</span>
+            <input type="color" id="ev-color" value="#4f8ef7">
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary" onclick="saveEvent()">保存</button>
+            <button class="btn-sm" onclick="showEvForm(false)">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GOALS VIEW ── -->
+    <div id="view-goals" class="view">
+      <div id="goals-view"></div>
+      <div id="add-goal-section" style="margin-top:12px">
+        <button class="btn-primary" onclick="showGoalForm(true)">＋ 大ゴールを追加</button>
+        <div id="goal-form" class="ev-form hidden mt8">
+          <input type="text" id="goal-title-input" placeholder="ゴールタイトル">
+          <div class="form-row">
+            <span class="lbl">色</span>
+            <input type="color" id="goal-color-input" value="#4f8ef7">
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary" onclick="saveGoal()">追加</button>
+            <button class="btn-sm" onclick="showGoalForm(false)">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── QUICK VIEW ── -->
+    <div id="view-quick" class="view">
+      <div class="add-row">
+        <input type="text" id="quick-input" placeholder="やることを追加…" class="flex1"
+          onkeydown="if(event.key==='Enter')addQuick()">
+        <button class="btn-primary" onclick="addQuick()">追加</button>
+      </div>
+      <div class="sec-title" id="quick-pending-title">未完了 (0)</div>
+      <div id="quick-pending"></div>
+      <div id="quick-done-section" class="hidden">
+        <div class="sec-title mt16" id="quick-done-title">完了 ✓ (0)</div>
+        <div id="quick-done"></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+const uid = () => Math.random().toString(36).slice(2,9);
+const fmt2 = n => String(n).padStart(2,'0');
+const fmtTime = d => `${fmt2(d.getHours())}:${fmt2(d.getMinutes())}`;
+const fmtDate = d => `${d.getFullYear()}-${fmt2(d.getMonth()+1)}-${fmt2(d.getDate())}`;
+const todayStr = () => fmtDate(new Date());
+const load = (k,def) => { try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch{return def;} };
+const save = (k,v) => { try{localStorage.setItem(k,JSON.stringify(v));}catch{} };
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const SEED_GOALS = [
+  { id:'g1', title:'法人税法 大原テキストを追いつく', color:'#4f8ef7', children:[
+    { id:'t1', goalId:'g1', title:'第10〜12回を受講する', children:[
+      { id:'s1', taskId:'t1', title:'第10回を受講', date:todayStr(), done:false },
+      { id:'s2', taskId:'t1', title:'第11回を受講', date:todayStr(), done:false },
+    ]},
+    { id:'t2', goalId:'g1', title:'第13〜15回を受講する', children:[
+      { id:'s3', taskId:'t2', title:'第13回を受講', date:todayStr(), done:false },
+    ]},
+  ]},
+  { id:'g2', title:'転職アピール用アプリを完成させる', color:'#f76b4f', children:[
+    { id:'t3', goalId:'g2', title:'Streamlit画面構成を調べる', children:[
+      { id:'s4', taskId:'t3', title:'公式ドキュメントを読む', date:todayStr(), done:false },
+    ]},
+  ]},
+];
+const SEED_EVENTS = [
+  { id:'e1', date:todayStr(), hour:9, minute:0, duration:60, title:'法人税 講義', color:'#4f8ef7' },
+  { id:'e2', date:todayStr(), hour:14, minute:0, duration:90, title:'Python 学習', color:'#f76b4f' },
+];
+const LOG_PRESETS = ['起床','朝食','入店','退店','昼食','帰宅','就寝'];
+const HOUR_H = 60;
+
+let state = {
+  tab: 'calendar',
+  currentDate: todayStr(),
+  goals: load('lp_goals', SEED_GOALS),
+  events: load('lp_events', SEED_EVENTS),
+  logs: load('lp_logs', {}),
+  quick: load('lp_quick', []),
+  expandedGoals: {},
+  expandedTasks: {},
+  showTaskForms: {},
+  showSubForms: {},
+};
+
+function persist() {
+  save('lp_goals', state.goals);
+  save('lp_events', state.events);
+  save('lp_logs', state.logs);
+  save('lp_quick', state.quick);
+}
+
+// ═══════════════════════════════════════════════
+// TAB / DATE NAVIGATION
+// ═══════════════════════════════════════════════
+function switchTab(tab) {
+  state.tab = tab;
+  document.querySelectorAll('.tab').forEach((el,i) => {
+    el.classList.toggle('active', ['calendar','goals','quick'][i] === tab);
+  });
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-'+tab).classList.add('active');
+  document.getElementById('date-nav').style.display = tab==='calendar' ? 'flex' : 'none';
+  renderAll();
+}
+
+function navDate(d) {
+  const dt = new Date(state.currentDate);
+  dt.setDate(dt.getDate()+d);
+  state.currentDate = fmtDate(dt);
+  document.getElementById('date-label').textContent = state.currentDate;
+  renderCalendar();
+}
+function goToday() {
+  state.currentDate = todayStr();
+  document.getElementById('date-label').textContent = state.currentDate;
+  renderCalendar();
+}
+
+// ═══════════════════════════════════════════════
+// RENDER CALENDAR
+// ═══════════════════════════════════════════════
+function renderCalendar() {
+  renderLogButtons();
+  renderTodayTasks();
+  renderGrid();
+}
+
+function renderLogButtons() {
+  const row = document.getElementById('log-btn-row');
+  row.innerHTML = '';
+  LOG_PRESETS.forEach(l => {
+    const b = document.createElement('button');
+    b.className = 'log-btn';
+    b.textContent = l;
+    b.onclick = () => addLog(l);
+    row.appendChild(b);
+  });
+}
+
+function addCustomLog() {
+  const inp = document.getElementById('custom-log-input');
+  if (!inp.value.trim()) return;
+  addLog(inp.value.trim());
+  inp.value = '';
+}
+
+function addLog(label) {
+  const now = new Date();
+  const entry = { id:uid(), time:fmtTime(now), rawMinutes:now.getHours()*60+now.getMinutes(), label };
+  const d = state.currentDate;
+  if (!state.logs[d]) state.logs[d] = [];
+  state.logs[d] = [...state.logs[d], entry].sort((a,b)=>a.rawMinutes-b.rawMinutes);
+  persist();
+  renderGrid();
+}
+
+function deleteLog(date, id) {
+  state.logs[date] = (state.logs[date]||[]).filter(l=>l.id!==id);
+  persist();
+  renderGrid();
+}
+
+function renderTodayTasks() {
+  const wrap = document.getElementById('today-tasks');
+  wrap.innerHTML = '';
+  const d = state.currentDate;
+  state.goals.forEach(g => {
+    g.children.forEach(t => {
+      t.children.filter(s=>s.date===d).forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'today-task';
+        div.style.borderLeft = `3px solid ${g.color}`;
+        div.innerHTML = `
+          <span style="color:${s.done?'#666':'#eee'};text-decoration:${s.done?'line-through':'none'};font-size:13px">${esc(s.title)}</span>
+          <span style="font-size:11px;color:#888;margin-left:8px">${esc(g.title)}</span>
+        `;
+        wrap.appendChild(div);
+      });
+    });
+  });
+}
+
+function renderGrid() {
+  const inner = document.getElementById('grid-inner');
+  inner.style.height = (24 * HOUR_H) + 'px';
+  inner.innerHTML = '';
+
+  // Hour rows
+  for (let h=0; h<24; h++) {
+    const row = document.createElement('div');
+    row.className = 'hour-row';
+    row.style.top = (h * HOUR_H) + 'px';
+    row.innerHTML = `<span class="hour-label">${fmt2(h)}:00</span><div class="hour-line"></div>`;
+    inner.appendChild(row);
+  }
+
+  // Events
+  const evs = state.events.filter(e=>e.date===state.currentDate);
+  evs.forEach(ev => {
+    const top = (ev.hour + ev.minute/60) * HOUR_H;
+    const height = (ev.duration/60) * HOUR_H;
+    const div = document.createElement('div');
+    div.className = 'ev-block';
+    div.style.cssText = `top:${top}px;height:${height}px;background:${ev.color}cc;border-left:3px solid ${ev.color}`;
+    div.innerHTML = `
+      <span class="ev-title">${esc(ev.title)}</span>
+      <span class="ev-sub">${fmt2(ev.hour)}:${fmt2(ev.minute)} (${ev.duration}分)</span>
+      <button class="del-btn" style="position:absolute;top:2px;right:2px" onclick="deleteEvent('${ev.id}')">×</button>
+    `;
+    inner.appendChild(div);
+  });
+
+  // Logs
+  const logs = state.logs[state.currentDate] || [];
+  logs.forEach(lg => {
+    const top = lg.rawMinutes * (HOUR_H/60) - 8;
+    const div = document.createElement('div');
+    div.className = 'log-dot';
+    div.style.top = top + 'px';
+    div.innerHTML = `
+      <div class="log-dot-line"></div>
+      <span class="log-dot-label">${lg.time} ${esc(lg.label)}</span>
+      <button class="del-btn" onclick="deleteLog('${state.currentDate}','${lg.id}')">×</button>
+    `;
+    inner.appendChild(div);
+  });
+
+  // Now line
+  const nowLine = document.createElement('div');
+  nowLine.id = 'now-line';
+  inner.appendChild(nowLine);
+  updateNowLine();
+}
+
+function updateNowLine() {
+  const nl = document.getElementById('now-line');
+  if (!nl) return;
+  const n = new Date();
+  nl.style.top = ((n.getHours() + n.getMinutes()/60) * HOUR_H) + 'px';
+}
+setInterval(updateNowLine, 60000);
+
+// Event form
+function showEvForm(show) {
+  document.getElementById('ev-form').classList.toggle('hidden', !show);
+  document.querySelector('#add-ev-section .btn-primary').classList.toggle('hidden', show);
+}
+
+function saveEvent() {
+  const title = document.getElementById('ev-title').value.trim();
+  if (!title) return;
+  state.events.push({
+    id: uid(),
+    date: state.currentDate,
+    title,
+    hour: +document.getElementById('ev-hour').value,
+    minute: +document.getElementById('ev-min').value,
+    duration: +document.getElementById('ev-dur').value,
+    color: document.getElementById('ev-color').value,
+  });
+  persist();
+  showEvForm(false);
+  document.getElementById('ev-title').value = '';
+  renderGrid();
+}
+
+function deleteEvent(id) {
+  state.events = state.events.filter(e=>e.id!==id);
+  persist();
+  renderGrid();
+}
+
+// ═══════════════════════════════════════════════
+// RENDER GOALS
+// ═══════════════════════════════════════════════
+function renderGoals() {
+  const wrap = document.getElementById('goals-view');
+  wrap.innerHTML = '';
+  state.goals.forEach(g => wrap.appendChild(buildGoalCard(g)));
+}
+
+function buildGoalCard(g) {
+  const allSubs = g.children.flatMap(t=>t.children);
+  const doneSubs = allSubs.filter(s=>s.done).length;
+  const pct = allSubs.length ? Math.round(doneSubs/allSubs.length*100) : 0;
+  const expanded = state.expandedGoals[g.id] !== false;
+
+  const card = document.createElement('div');
+  card.className = 'goal-card';
+  card.style.borderTop = `4px solid ${g.color}`;
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'goal-header';
+  header.innerHTML = `
+    <div style="flex:1;min-width:0">
+      <div class="goal-title">${esc(g.title)}</div>
+      <div class="prog-wrap" style="margin-top:6px">
+        <div class="prog-bar" style="width:${pct}%;background:${g.color}"></div>
+        <span class="prog-label">${pct}%</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:4px;flex-shrink:0;margin-left:8px">
+      <button class="icon-btn" onclick="toggleGoal('${g.id}')">${expanded?'▲':'▼'}</button>
+      <button class="icon-btn" onclick="confirmDeleteGoal('${g.id}')">🗑</button>
+    </div>
+  `;
+  card.appendChild(header);
+
+  if (expanded) {
+    const body = document.createElement('div');
+    g.children.forEach(t => body.appendChild(buildTaskCard(g, t)));
+
+    // Add task form
+    const showForm = state.showTaskForms[g.id];
+    const addBtn = document.createElement('button');
+    addBtn.className = 'btn-sm';
+    addBtn.textContent = '＋ タスク追加';
+    addBtn.onclick = () => { state.showTaskForms[g.id] = true; renderGoals(); };
+
+    const form = document.createElement('div');
+    form.className = 'inline-form' + (showForm ? '' : ' hidden');
+    form.innerHTML = `
+      <input type="text" id="task-input-${g.id}" placeholder="タスク名">
+      <div class="btn-row">
+        <button class="btn-sm" onclick="saveTask('${g.id}')">追加</button>
+        <button class="btn-xs" onclick="cancelTaskForm('${g.id}')">×</button>
+      </div>
+    `;
+    body.appendChild(showForm ? form : addBtn);
+    card.appendChild(body);
+  }
+  return card;
+}
+
+function buildTaskCard(g, t) {
+  const done = t.children.filter(s=>s.done).length;
+  const pct = t.children.length ? Math.round(done/t.children.length*100) : 0;
+  const expanded = state.expandedTasks[t.id] !== false;
+
+  const card = document.createElement('div');
+  card.className = 'task-card';
+
+  const header = document.createElement('div');
+  header.className = 'task-header';
+  header.innerHTML = `
+    <span class="task-title">📌 ${esc(t.title)}</span>
+    <div style="display:flex;align-items:center;gap:4px">
+      <span style="font-size:11px;color:${g.color}">${pct}%</span>
+      <button class="icon-btn" onclick="toggleTask('${t.id}')">${expanded?'▲':'▼'}</button>
+      <button class="icon-btn" onclick="confirmDeleteTask('${g.id}','${t.id}')">🗑</button>
+    </div>
+  `;
+  card.appendChild(header);
+
+  if (expanded) {
+    t.children.forEach(s => {
+      const row = document.createElement('div');
+      row.className = 'sub-row';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = s.done;
+      cb.style.accentColor = g.color;
+      cb.onchange = () => toggleSub(g.id, t.id, s.id);
+      const span = document.createElement('span');
+      span.className = 'sub-title';
+      span.style.color = s.done ? '#666' : '#ddd';
+      span.style.textDecoration = s.done ? 'line-through' : 'none';
+      span.textContent = s.title;
+      const dateSpan = document.createElement('span');
+      dateSpan.className = 'sub-date';
+      dateSpan.textContent = s.date;
+      const del = document.createElement('button');
+      del.className = 'del-btn';
+      del.textContent = '×';
+      del.onclick = () => deleteSub(g.id, t.id, s.id);
+      row.append(cb, span, dateSpan, del);
+      card.appendChild(row);
+    });
+
+    const showForm = state.showSubForms[t.id];
+    const addBtn = document.createElement('button');
+    addBtn.className = 'btn-xs';
+    addBtn.textContent = '＋ 日タスク追加';
+    addBtn.onclick = () => { state.showSubForms[t.id] = true; renderGoals(); };
+
+    const form = document.createElement('div');
+    form.className = 'inline-form' + (showForm ? '' : ' hidden');
+    form.innerHTML = `
+      <input type="text" id="sub-input-${t.id}" placeholder="今日やること">
+      <input type="date" id="sub-date-${t.id}" value="${todayStr()}">
+      <div class="btn-row">
+        <button class="btn-xs" onclick="saveSub('${g.id}','${t.id}')">追加</button>
+        <button class="btn-xs" onclick="cancelSubForm('${t.id}')">×</button>
+      </div>
+    `;
+    card.appendChild(showForm ? form : addBtn);
+  }
+  return card;
+}
+
+function toggleGoal(id) {
+  state.expandedGoals[id] = state.expandedGoals[id] === false ? true : false;
+  renderGoals();
+}
+function toggleTask(id) {
+  state.expandedTasks[id] = state.expandedTasks[id] === false ? true : false;
+  renderGoals();
+}
+function confirmDeleteGoal(id) {
+  if (confirm('このゴールを削除しますか？')) {
+    state.goals = state.goals.filter(g=>g.id!==id);
+    persist(); renderGoals();
+  }
+}
+function confirmDeleteTask(goalId, taskId) {
+  if (confirm('このタスクを削除しますか？')) {
+    state.goals = state.goals.map(g=>g.id!==goalId?g:{...g,children:g.children.filter(t=>t.id!==taskId)});
+    persist(); renderGoals();
+  }
+}
+function deleteSub(goalId, taskId, subId) {
+  state.goals = state.goals.map(g=>g.id!==goalId?g:{
+    ...g,children:g.children.map(t=>t.id!==taskId?t:{
+      ...t,children:t.children.filter(s=>s.id!==subId)
+    })
+  });
+  persist(); renderGoals(); renderCalendar();
+}
+function toggleSub(goalId, taskId, subId) {
+  state.goals = state.goals.map(g=>g.id!==goalId?g:{
+    ...g,children:g.children.map(t=>t.id!==taskId?t:{
+      ...t,children:t.children.map(s=>s.id!==subId?s:{...s,done:!s.done})
+    })
+  });
+  persist(); renderGoals(); renderCalendar();
+}
+function showGoalForm(show) {
+  document.getElementById('goal-form').classList.toggle('hidden', !show);
+  document.querySelector('#add-goal-section .btn-primary').classList.toggle('hidden', show);
+}
+function saveGoal() {
+  const title = document.getElementById('goal-title-input').value.trim();
+  if (!title) return;
+  state.goals.push({ id:uid(), title, color:document.getElementById('goal-color-input').value, children:[] });
+  persist();
+  document.getElementById('goal-title-input').value = '';
+  showGoalForm(false);
+  renderGoals();
+}
+function cancelTaskForm(goalId) {
+  state.showTaskForms[goalId] = false; renderGoals();
+}
+function saveTask(goalId) {
+  const inp = document.getElementById('task-input-'+goalId);
+  if (!inp || !inp.value.trim()) return;
+  state.goals = state.goals.map(g=>g.id!==goalId?g:{
+    ...g,children:[...g.children,{id:uid(),goalId,title:inp.value.trim(),children:[]}]
+  });
+  state.showTaskForms[goalId] = false;
+  persist(); renderGoals();
+}
+function cancelSubForm(taskId) {
+  state.showSubForms[taskId] = false; renderGoals();
+}
+function saveSub(goalId, taskId) {
+  const inp = document.getElementById('sub-input-'+taskId);
+  const dateInp = document.getElementById('sub-date-'+taskId);
+  if (!inp || !inp.value.trim()) return;
+  state.goals = state.goals.map(g=>g.id!==goalId?g:{
+    ...g,children:g.children.map(t=>t.id!==taskId?t:{
+      ...t,children:[...t.children,{id:uid(),taskId,title:inp.value.trim(),date:dateInp?dateInp.value:todayStr(),done:false}]
+    })
+  });
+  state.showSubForms[taskId] = false;
+  persist(); renderGoals(); renderCalendar();
+}
+
+// ═══════════════════════════════════════════════
+// RENDER QUICK TODO
+// ═══════════════════════════════════════════════
+function renderQuick() {
+  const pending = state.quick.filter(t=>!t.done);
+  const done = state.quick.filter(t=>t.done);
+
+  document.getElementById('quick-pending-title').textContent = `未完了 (${pending.length})`;
+  const pEl = document.getElementById('quick-pending');
+  pEl.innerHTML = '';
+  pending.forEach(t => pEl.appendChild(buildQuickItem(t)));
+
+  const dSec = document.getElementById('quick-done-section');
+  dSec.classList.toggle('hidden', done.length===0);
+  document.getElementById('quick-done-title').textContent = `完了 ✓ (${done.length})`;
+  const dEl = document.getElementById('quick-done');
+  dEl.innerHTML = '';
+  done.forEach(t => dEl.appendChild(buildQuickItem(t)));
+}
+
+function buildQuickItem(t) {
+  const div = document.createElement('div');
+  div.className = 'quick-item';
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.checked = t.done;
+  cb.style.accentColor = '#4f8ef7';
+  cb.onchange = () => { toggleQuick(t.id); };
+  const span = document.createElement('span');
+  span.className = 'quick-title';
+  span.style.color = t.done ? '#666' : '#ddd';
+  span.style.textDecoration = t.done ? 'line-through' : 'none';
+  span.textContent = t.title;
+  const del = document.createElement('button');
+  del.className = 'del-btn';
+  del.textContent = '×';
+  del.onclick = () => deleteQuick(t.id);
+  div.append(cb, span, del);
+  return div;
+}
+
+function addQuick() {
+  const inp = document.getElementById('quick-input');
+  if (!inp.value.trim()) return;
+  state.quick.push({ id:uid(), title:inp.value.trim(), done:false });
+  inp.value = '';
+  persist(); renderQuick();
+}
+function toggleQuick(id) {
+  state.quick = state.quick.map(t=>t.id===id?{...t,done:!t.done}:t);
+  persist(); renderQuick();
+}
+function deleteQuick(id) {
+  state.quick = state.quick.filter(t=>t.id!==id);
+  persist(); renderQuick();
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderAll() {
+  renderCalendar();
+  renderGoals();
+  renderQuick();
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+document.getElementById('date-label').textContent = state.currentDate;
+// Scroll grid to 6am on load
+document.getElementById('grid-outer').scrollTop = 6 * HOUR_H;
+renderAll();
+
+// Scroll grid after render
+setTimeout(() => {
+  document.getElementById('grid-outer').scrollTop = 6 * HOUR_H;
+}, 100);
+</script>
+</body>
+</html>
