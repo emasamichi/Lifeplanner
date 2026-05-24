@@ -64,6 +64,7 @@ input, textarea, select { font-family: var(--font); }
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 #top-bar {
@@ -71,11 +72,12 @@ input, textarea, select { font-family: var(--font); }
   height: var(--header-h);
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 16px;
+  gap: 8px;
+  padding: 0 12px;
   border-bottom: 1px solid var(--border);
   background: var(--bg2);
   z-index: 100;
+  overflow: hidden;
 }
 #app-title {
   font-weight: 700;
@@ -131,7 +133,7 @@ input, textarea, select { font-family: var(--font); }
   margin-right: 2px;
 }
 .ql-btn {
-  padding: 5px 11px;
+  padding: 4px 9px;
   border-radius: 20px;
   font-size: 11px;
   font-weight: 500;
@@ -140,6 +142,7 @@ input, textarea, select { font-family: var(--font); }
   background: var(--bg3);
   transition: all .15s;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .ql-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
 .ql-btn.wake  { border-color: rgba(245,166,35,0.4); color: var(--amber); background: var(--amber-bg); }
@@ -218,13 +221,17 @@ input, textarea, select { font-family: var(--font); }
   flex: 1;
   overflow: hidden;
   position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── WEEKLY VIEW ── */
 #weekly-view {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 .week-day-headers {
@@ -263,9 +270,11 @@ input, textarea, select { font-family: var(--font); }
 .week-day-col-header:last-child { border-right: none; }
 .week-scroll-area {
   flex: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   position: relative;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
 }
 .week-grid {
   display: flex;
@@ -328,7 +337,8 @@ input, textarea, select { font-family: var(--font); }
 #day-view {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 .day-view-header {
@@ -341,9 +351,11 @@ input, textarea, select { font-family: var(--font); }
 }
 .day-scroll-area {
   flex: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   position: relative;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
 }
 .day-grid {
   display: flex;
@@ -363,7 +375,8 @@ input, textarea, select { font-family: var(--font); }
 #month-view {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 .month-day-labels {
@@ -1093,12 +1106,13 @@ function renderCalendar() {
 }
 
 // ─────────────────────────────────────────────
-//  HOUR HEIGHT (dynamic to fit screen without scroll)
+//  HOUR HEIGHT
+//  固定48px：スクロールで全24時間を確実に表示
+//  (24h × 48px = 1152px のグリッドを縦スクロール)
 // ─────────────────────────────────────────────
+const HOUR_H = 48;
 function getHourH() {
-  const totalH = $('cal-body').clientHeight || (window.innerHeight - 52 - 44);
-  // 24 hours + day header row (~28px) in week view
-  return Math.max(22, Math.floor((totalH - 28) / 24));
+  return HOUR_H;
 }
 
 // ─────────────────────────────────────────────
@@ -1202,10 +1216,12 @@ function renderWeekView(container) {
   }
 
   // scroll to 7am
-  setTimeout(() => {
-    const scrollArea = wrap.querySelector('#week-scroll');
-    scrollArea.scrollTop = hourH * 7;
-  }, 0);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const scrollArea = wrap.querySelector('#week-scroll');
+      if (scrollArea) scrollArea.scrollTop = hourH * 7;
+    });
+  });
 }
 
 // ─────────────────────────────────────────────
@@ -1274,10 +1290,12 @@ function renderDayView(container) {
     evCol.appendChild(line);
   }
 
-  setTimeout(() => {
-    const scrollArea = wrap.querySelector('#day-scroll');
-    scrollArea.scrollTop = hourH * 7;
-  }, 0);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const scrollArea = wrap.querySelector('#day-scroll');
+      if (scrollArea) scrollArea.scrollTop = hourH * 7;
+    });
+  });
 }
 
 // ─────────────────────────────────────────────
