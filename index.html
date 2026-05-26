@@ -10,42 +10,49 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DESIGN TOKENS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 :root {
-  --bg: #0f1117;
-  --bg2: #161b27;
-  --bg3: #1e2535;
-  --bg4: #252d3d;
-  --border: rgba(255,255,255,0.07);
+  --bg:    #0f1117;
+  --bg2:   #161b27;
+  --bg3:   #1e2535;
+  --bg4:   #252d3d;
+  --border:  rgba(255,255,255,0.07);
   --border2: rgba(255,255,255,0.13);
-  --text: #e8eaf0;
+  --text:  #e8eaf0;
   --text2: #8b93a8;
   --text3: #5a6278;
-  --accent: #4f8ef7;
-  --accent2: #3a7ae8;
+  --accent:      #4f8ef7;
+  --accent2:     #3a7ae8;
   --accent-glow: rgba(79,142,247,0.18);
-  --green: #34c97a;
+  --green:  #34c97a;
   --green-bg: rgba(52,201,122,0.12);
-  --amber: #f5a623;
+  --amber:  #f5a623;
   --amber-bg: rgba(245,166,35,0.12);
-  --red: #ff5f5f;
+  --red:    #ff5f5f;
   --red-bg: rgba(255,95,95,0.12);
   --purple: #a78bfa;
   --purple-bg: rgba(167,139,250,0.12);
-  --teal: #2dd4bf;
-  --teal-bg: rgba(45,212,191,0.12);
-  --coral: #f87171;
+  --coral:  #f87171;
   --coral-bg: rgba(248,113,113,0.12);
-  --radius: 8px;
-  --radius-lg: 12px;
-  --font: 'Noto Sans JP', sans-serif;
+  --r:  8px;
+  --rl: 12px;
+  --font:      'Noto Sans JP', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --header-h: 52px;
-  --cal-header-h: 44px;
-  --time-col-w: 38px;
+  --top-h:  52px;
+  --cal-h:  44px;
+  --gut-w:  46px;
+  --hour-h: 48px;   /* 48×24 = 1152px グリッド高さ */
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   RESET & BASE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 html, body {
-  height: 100%;
+  width: 100%; height: 100%;
   overflow: hidden;
   background: var(--bg);
   color: var(--text);
@@ -53,23 +60,28 @@ html, body {
   font-size: 13px;
   -webkit-font-smoothing: antialiased;
 }
-button { font-family: var(--font); cursor: pointer; border: none; background: none; }
+button  { font-family: var(--font); cursor: pointer; border: none; background: none; color: inherit; }
 input, textarea, select { font-family: var(--font); }
-::-webkit-scrollbar { width: 4px; height: 4px; }
+
+::-webkit-scrollbar       { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
 
-/* ── APP SHELL ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   APP SHELL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 #app {
   display: flex;
   flex-direction: column;
+  width: 100%;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
 }
+
+/* ── TOP BAR ── */
 #top-bar {
-  flex-shrink: 0;
-  height: var(--header-h);
+  flex: 0 0 var(--top-h);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -80,102 +92,80 @@ input, textarea, select { font-family: var(--font); }
   overflow: hidden;
 }
 #app-title {
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.06em;
+  font-weight: 700; font-size: 15px;
+  letter-spacing: .06em;
   color: var(--accent);
   font-family: var(--font-mono);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 #date-nav {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 8px;
+  display: flex; align-items: center; gap: 6px;
+  flex-shrink: 0;
 }
-#date-nav button {
+#date-nav .nav-arrow {
   width: 26px; height: 26px;
-  border-radius: var(--radius);
+  border-radius: var(--r);
   border: 1px solid var(--border2);
-  color: var(--text2);
-  font-size: 14px;
+  color: var(--text2); font-size: 15px;
   display: flex; align-items: center; justify-content: center;
-  transition: all .15s;
+  transition: background .15s;
 }
-#date-nav button:hover { background: var(--bg4); color: var(--text); }
-#current-date-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text);
-  min-width: 110px;
-  text-align: center;
+#date-nav .nav-arrow:hover { background: var(--bg4); color: var(--text); }
+#date-label {
+  min-width: 110px; text-align: center;
+  font-size: 13px; font-weight: 500;
 }
 #today-btn {
-  padding: 4px 10px;
-  border-radius: var(--radius);
+  padding: 4px 10px; border-radius: var(--r);
   border: 1px solid var(--border2);
-  color: var(--text2);
-  font-size: 12px;
-  transition: all .15s;
+  color: var(--text2); font-size: 12px;
+  transition: background .15s;
 }
 #today-btn:hover { background: var(--bg4); color: var(--text); }
 
-/* quick log buttons in top bar */
-.quick-log-area {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
+/* quick log */
+#quick-log {
+  display: flex; align-items: center; gap: 5px;
+  margin-left: auto; flex-shrink: 0;
 }
-.quick-log-area .ql-label {
-  font-size: 11px;
-  color: var(--text3);
-  margin-right: 2px;
-}
+#quick-log .ql-label { font-size: 11px; color: var(--text3); }
 .ql-btn {
-  padding: 4px 9px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 500;
+  padding: 4px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 500;
   border: 1px solid var(--border2);
-  color: var(--text2);
   background: var(--bg3);
-  transition: all .15s;
   white-space: nowrap;
-  flex-shrink: 0;
+  transition: all .15s;
 }
-.ql-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
-.ql-btn.wake  { border-color: rgba(245,166,35,0.4); color: var(--amber); background: var(--amber-bg); }
-.ql-btn.enter { border-color: rgba(52,201,122,0.4); color: var(--green); background: var(--green-bg); }
-.ql-btn.leave { border-color: rgba(248,113,113,0.4); color: var(--coral); background: var(--coral-bg); }
-.ql-btn.home  { border-color: rgba(167,139,250,0.4); color: var(--purple); background: var(--purple-bg); }
+.ql-btn[data-logtype="起床"] { border-color:rgba(245,166,35,.4); color:var(--amber); background:var(--amber-bg); }
+.ql-btn[data-logtype="入店"] { border-color:rgba(52,201,122,.4); color:var(--green); background:var(--green-bg); }
+.ql-btn[data-logtype="退店"] { border-color:rgba(248,113,113,.4); color:var(--coral); background:var(--coral-bg); }
+.ql-btn[data-logtype="帰宅"] { border-color:rgba(167,139,250,.4); color:var(--purple); background:var(--purple-bg); }
 
-/* ── MAIN LAYOUT ── */
+/* ── MAIN ── */
 #main {
-  flex: 1;
+  flex: 1 1 0;
   display: flex;
   min-height: 0;
   overflow: hidden;
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   LEFT PANEL (70%) – CALENDAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 #left-panel {
   flex: 0 0 70%;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
   border-right: 1px solid var(--border);
 }
-#right-panel {
-  flex: 0 0 30%;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  background: var(--bg2);
-}
 
-/* ── CAL HEADER ── */
-#cal-header {
-  flex-shrink: 0;
-  height: var(--cal-header-h);
+/* cal toolbar */
+#cal-toolbar {
+  flex: 0 0 var(--cal-h);
   display: flex;
   align-items: center;
   gap: 0;
@@ -186,108 +176,110 @@ input, textarea, select { font-family: var(--font); }
 .view-tabs {
   display: flex;
   background: var(--bg3);
-  border-radius: var(--radius);
-  padding: 2px;
-  gap: 2px;
+  border-radius: var(--r);
+  padding: 2px; gap: 2px;
 }
 .view-tab {
-  padding: 5px 14px;
-  border-radius: calc(var(--radius) - 2px);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text3);
+  padding: 5px 14px; border-radius: calc(var(--r) - 2px);
+  font-size: 12px; font-weight: 500; color: var(--text3);
   transition: all .15s;
 }
-.view-tab.active {
-  background: var(--accent);
-  color: #fff;
-}
+.view-tab.active { background: var(--accent); color: #fff; }
 .view-tab:hover:not(.active) { color: var(--text); }
 #add-event-btn {
   margin-left: auto;
-  padding: 5px 12px;
-  border-radius: var(--radius);
+  padding: 5px 12px; border-radius: var(--r);
   background: var(--accent-glow);
-  border: 1px solid rgba(79,142,247,0.3);
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 500;
+  border: 1px solid rgba(79,142,247,.3);
+  color: var(--accent); font-size: 12px; font-weight: 500;
   transition: all .15s;
 }
 #add-event-btn:hover { background: var(--accent); color: #fff; }
 
-/* ── CALENDAR BODY ── */
+/* cal body – fills remaining height */
 #cal-body {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  min-height: 0;
+  flex: 1 1 0;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
-/* ── WEEKLY VIEW ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   WEEKLY VIEW
+   構造:
+   #weekly-view (flex col)
+     .wk-header-row (flex, shrink 0)
+     .wk-scroll     (flex 1, overflow-y auto)
+       .wk-grid     (flex row, height=1152px)
+         .wk-gutter (flex 0 0 46px)
+         .wk-cols   (flex 1, position relative)
+           .wk-lane ×7 (position relative, height 1152px, float left)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 #weekly-view {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1 1 0;
   min-height: 0;
   overflow: hidden;
 }
-.week-day-headers {
-  flex-shrink: 0;
+.wk-header-row {
+  flex: 0 0 36px;
   display: flex;
   border-bottom: 1px solid var(--border);
   background: var(--bg2);
 }
-.week-day-headers .time-gutter {
-  flex: 0 0 var(--time-col-w);
+.wk-header-gutter {
+  flex: 0 0 var(--gut-w);
   border-right: 1px solid var(--border);
 }
-.week-day-col-header {
+.wk-header-cell {
   flex: 1;
-  text-align: center;
-  padding: 5px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--border);
   font-size: 11px;
   color: var(--text3);
-  border-right: 1px solid var(--border);
-  line-height: 1.4;
+  line-height: 1.2;
+  padding: 3px 0;
 }
-.week-day-col-header .day-num {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text2);
-  display: block;
+.wk-header-cell:last-child { border-right: none; }
+.wk-header-cell .day-num {
+  font-size: 15px; font-weight: 700; color: var(--text2);
 }
-.week-day-col-header.today .day-num {
-  color: #fff;
-  background: var(--accent);
+.wk-header-cell.is-today .day-num {
+  color: #fff; background: var(--accent);
   border-radius: 50%;
-  width: 26px; height: 26px;
-  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
 }
-.week-day-col-header.today { color: var(--accent); }
-.week-day-col-header:last-child { border-right: none; }
-.week-scroll-area {
-  flex: 1;
+.wk-header-cell.is-today { color: var(--accent); }
+.wk-scroll {
+  flex: 1 1 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   min-height: 0;
 }
-/* week-gridはscroll-areaの直下、flexで左右分割 */
-.week-grid {
+/* ★ wk-grid: flex row で gutter + cols を横並び。
+   高さを calc(var(--hour-h) * 24) = 1152px に明示。
+   Chrome では flex子の高さが親に依存するため必須。 */
+.wk-grid {
   display: flex;
-  /* 高さはJSでinlineに設定 */
-  min-height: 100%;
+  flex-direction: row;
+  height: calc(var(--hour-h) * 24);
+  min-height: calc(var(--hour-h) * 24);
 }
-.time-gutter-col {
-  flex: 0 0 var(--time-col-w);
-  border-right: 1px solid var(--border);
+/* 時刻ガター列 */
+.wk-gutter {
+  flex: 0 0 var(--gut-w);
+  height: calc(var(--hour-h) * 24);
   position: relative;
-  /* 高さはweek-gridに合わせて伸びる */
+  border-right: 1px solid var(--border);
 }
-.time-label {
+.wk-time-label {
   position: absolute;
   right: 4px;
   font-size: 9px;
@@ -295,40 +287,166 @@ input, textarea, select { font-family: var(--font); }
   font-family: var(--font-mono);
   transform: translateY(-50%);
   white-space: nowrap;
-}
-/* 7列のグリッドコンテナ。position:relativeで赤線の基準に */
-.week-days-grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  position: relative;
-}
-/* 各日の列。高さはJSでinlineに設定 */
-.week-day-lane {
-  border-right: 1px solid var(--border);
-  position: relative;
-}
-.week-day-lane:last-child { border-right: none; }
-.hour-row {
-  border-bottom: 1px solid var(--border);
-  position: relative;
-}
-.half-line {
-  position: absolute;
-  bottom: 50%;
-  left: 0; right: 0;
-  border-bottom: 1px dashed var(--border);
   pointer-events: none;
 }
-.current-time-line {
+/* ★ wk-cols: 7列を横並びにする親。position:relative で赤線の基準。
+   display:flex + width:100% で Chrome でも伸びる。 */
+.wk-cols {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  height: calc(var(--hour-h) * 24);
+}
+/* ★ wk-lane: 各曜日列。flex:1 で均等幅。高さを明示。 */
+.wk-lane {
+  flex: 1 1 0;
+  position: relative;
+  height: calc(var(--hour-h) * 24);
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+.wk-lane:last-child { border-right: none; }
+/* 1時間ごとの境界線 */
+.wk-hour-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 0;
+  border-top: 1px solid var(--border);
+  pointer-events: none;
+}
+/* 30分ラインは破線 */
+.wk-half-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 0;
+  border-top: 1px dashed var(--border);
+  pointer-events: none;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   1DAY VIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#day-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.dv-header {
+  flex: 0 0 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  font-size: 12px; color: var(--text2);
+}
+.dv-scroll {
+  flex: 1 1 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+.dv-grid {
+  display: flex;
+  flex-direction: row;
+  height: calc(var(--hour-h) * 24);
+  min-height: calc(var(--hour-h) * 24);
+}
+.dv-gutter {
+  flex: 0 0 var(--gut-w);
+  height: calc(var(--hour-h) * 24);
+  position: relative;
+  border-right: 1px solid var(--border);
+}
+.dv-events {
+  flex: 1 1 0;
+  position: relative;
+  height: calc(var(--hour-h) * 24);
+  overflow: hidden;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   MONTHLY VIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#month-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.mv-dow-row {
+  flex: 0 0 28px;
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+.mv-dow-cell {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--text3);
+  border-right: 1px solid var(--border);
+}
+.mv-dow-cell:last-child { border-right: none; }
+.mv-scroll {
+  flex: 1 1 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+/* ★ mv-grid: display:flex + flex-wrap でグリッド状に並べる。
+   display:grid はChromeで高さが0になるケースがあるため回避。 */
+.mv-grid {
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 100%;
+}
+.mv-cell {
+  flex: 0 0 calc(100% / 7);
+  min-height: 80px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 4px 6px;
+  cursor: pointer;
+  transition: background .15s;
+  overflow: hidden;
+}
+.mv-cell:hover { background: var(--bg3); }
+.mv-cell.is-today { background: var(--accent-glow); }
+.mv-cell-num {
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  margin-bottom: 3px;
+}
+.mv-cell.is-today .mv-cell-num {
+  color: #fff; background: var(--accent);
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+}
+.mv-cell.other-month .mv-cell-num { color: var(--text3); }
+.mv-dot {
+  font-size: 10px; padding: 1px 4px;
+  border-radius: 3px; margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CURRENT TIME LINE (赤線)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.time-now-line {
   position: absolute;
   left: 0; right: 0;
   height: 2px;
   background: var(--red);
-  z-index: 10;
+  z-index: 20;
   pointer-events: none;
 }
-.current-time-line::before {
+.time-now-line::before {
   content: '';
   position: absolute;
   left: -4px; top: -3px;
@@ -337,110 +455,9 @@ input, textarea, select { font-family: var(--font); }
   background: var(--red);
 }
 
-/* ── 1DAY VIEW ── */
-#day-view {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-.day-view-header {
-  flex-shrink: 0;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg2);
-  font-size: 12px;
-  color: var(--text2);
-}
-.day-scroll-area {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  position: relative;
-  -webkit-overflow-scrolling: touch;
-  min-height: 0;
-}
-.day-grid {
-  display: flex;
-  position: relative;
-}
-.day-time-col {
-  flex: 0 0 48px;
-  border-right: 1px solid var(--border);
-  position: relative;
-}
-.day-events-col {
-  flex: 1;
-  position: relative;
-  overflow: visible;
-}
-
-/* ── MONTHLY VIEW ── */
-#month-view {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-.month-day-labels {
-  flex-shrink: 0;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  border-bottom: 1px solid var(--border);
-  background: var(--bg2);
-}
-.month-day-label {
-  text-align: center;
-  padding: 6px;
-  font-size: 11px;
-  color: var(--text3);
-}
-.month-grid-wrap {
-  flex: 1;
-  overflow: auto;
-}
-.month-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  height: 100%;
-}
-.month-cell {
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 4px 6px;
-  min-height: 80px;
-  cursor: pointer;
-  transition: background .15s;
-}
-.month-cell:hover { background: var(--bg3); }
-.month-cell.today { background: var(--accent-glow); }
-.month-cell.other-month .mc-num { color: var(--text3); }
-.mc-num {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text2);
-  margin-bottom: 4px;
-}
-.month-cell.today .mc-num {
-  color: #fff;
-  background: var(--accent);
-  border-radius: 50%;
-  width: 22px; height: 22px;
-  display: inline-flex; align-items: center; justify-content: center;
-}
-.mc-events { display: flex; flex-direction: column; gap: 2px; }
-.mc-event-dot {
-  font-size: 10px;
-  padding: 1px 4px;
-  border-radius: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ── EVENTS on grid ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   EVENTS & LOGS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .cal-event {
   position: absolute;
   left: 2px; right: 2px;
@@ -449,363 +466,216 @@ input, textarea, select { font-family: var(--font); }
   font-size: 10px;
   overflow: hidden;
   cursor: pointer;
-  z-index: 2;
-  transition: opacity .15s;
+  z-index: 5;
   border-left: 3px solid transparent;
 }
-.cal-event:hover { opacity: 0.85; }
+.cal-event:hover { opacity: .85; }
 .cal-event .ev-title { font-weight: 500; }
-.cal-event .ev-time { color: rgba(255,255,255,0.65); font-size: 9px; font-family: var(--font-mono); }
-
-/* log chip */
+.cal-event .ev-time  { font-size: 9px; opacity: .7; font-family: var(--font-mono); }
 .log-chip {
   position: absolute;
   left: 0; right: 0;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0 6px;
-  z-index: 3;
+  display: flex; align-items: center; gap: 4px;
+  padding: 0 5px;
+  z-index: 6;
   pointer-events: none;
 }
-.log-chip-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.log-chip-text {
-  font-size: 9px;
-  font-family: var(--font-mono);
-  font-weight: 500;
-}
+.log-chip-dot  { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.log-chip-text { font-size: 9px; font-family: var(--font-mono); font-weight: 500; }
 
-/* ── RIGHT PANEL ── */
-.panel-section {
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   RIGHT PANEL (30%)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#right-panel {
+  flex: 0 0 30%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg2);
+}
+.r-section {
   display: flex;
   flex-direction: column;
   min-height: 0;
   border-bottom: 1px solid var(--border);
 }
-.panel-section:last-child { border-bottom: none; flex: 1; }
-.panel-section-header {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px 8px;
+.r-section:last-child { border-bottom: none; }
+.r-section-head {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px 7px;
   border-bottom: 1px solid var(--border);
 }
-.panel-section-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text3);
+.r-section-title {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--text3);
 }
-.panel-add-btn {
+.r-add-btn {
   margin-left: auto;
-  width: 22px; height: 22px;
-  border-radius: 5px;
-  border: 1px solid var(--border2);
-  color: var(--text3);
-  font-size: 16px;
+  width: 22px; height: 22px; border-radius: 5px;
+  border: 1px solid var(--border2); color: var(--text3);
+  font-size: 16px; line-height: 1;
   display: flex; align-items: center; justify-content: center;
-  line-height: 1;
   transition: all .15s;
 }
-.panel-add-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
-.panel-scroll {
-  flex: 1;
+.r-add-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.r-scroll {
+  flex: 1 1 0;
   overflow-y: auto;
   padding: 8px 10px;
+  min-height: 0;
 }
 
-/* ── GOAL LIST ── */
-.goal-item {
-  margin-bottom: 10px;
+/* goal */
+.goal-item { margin-bottom: 10px; }
+.goal-head {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 8px; border-radius: var(--r);
+  background: var(--bg3); border: 1px solid var(--border);
+  cursor: pointer; transition: background .15s;
 }
-.goal-title-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  background: var(--bg3);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  cursor: pointer;
+.goal-head:hover { background: var(--bg4); }
+.goal-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.goal-name { flex: 1; font-size: 12px; font-weight: 500; }
+.goal-chevron { font-size: 10px; color: var(--text3); transition: transform .2s; }
+.goal-item.open .goal-chevron { transform: rotate(90deg); }
+.goal-subs { display: none; padding: 4px 0 0 16px; }
+.goal-item.open .goal-subs { display: block; }
+.sub-row {
+  display: flex; align-items: center; gap: 7px;
+  padding: 4px 6px; border-radius: 5px; cursor: pointer;
   transition: background .15s;
 }
-.goal-title-row:hover { background: var(--bg4); }
-.goal-color-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.goal-name {
-  flex: 1;
-  font-size: 12px;
-  font-weight: 500;
-}
-.goal-chevron {
-  font-size: 10px;
-  color: var(--text3);
-  transition: transform .2s;
-}
-.goal-item.expanded .goal-chevron { transform: rotate(90deg); }
-.goal-subtasks {
-  display: none;
-  padding: 4px 0 0 16px;
-}
-.goal-item.expanded .goal-subtasks { display: block; }
-.subtask-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 4px 6px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background .15s;
-}
-.subtask-row:hover { background: var(--bg3); }
-.subtask-check {
-  width: 14px; height: 14px;
-  border-radius: 3px;
-  border: 1.5px solid var(--border2);
-  flex-shrink: 0;
+.sub-row:hover { background: var(--bg3); }
+.sub-check {
+  width: 14px; height: 14px; border-radius: 3px;
+  border: 1.5px solid var(--border2); flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   transition: all .15s;
 }
-.subtask-row.done .subtask-check {
-  background: var(--green);
-  border-color: var(--green);
-}
-.subtask-row.done .subtask-check::after {
-  content: '✓';
-  font-size: 9px;
-  color: #000;
-}
-.subtask-label {
-  font-size: 11px;
-  color: var(--text2);
-  flex: 1;
-}
-.subtask-row.done .subtask-label { text-decoration: line-through; color: var(--text3); }
-.subtask-del { color: var(--text3); font-size: 14px; opacity: 0; transition: opacity .15s; }
-.subtask-row:hover .subtask-del { opacity: 1; }
+.sub-row.done .sub-check { background: var(--green); border-color: var(--green); }
+.sub-row.done .sub-check::after { content: '✓'; font-size: 9px; color: #000; }
+.sub-label { flex: 1; font-size: 11px; color: var(--text2); }
+.sub-row.done .sub-label { text-decoration: line-through; color: var(--text3); }
+.sub-del { color: var(--text3); font-size: 13px; opacity: 0; transition: opacity .15s; }
+.sub-row:hover .sub-del { opacity: 1; }
 
-/* ── TODO LIST ── */
+/* todo */
 .todo-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 7px;
-  padding: 5px 6px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background .15s;
-  margin-bottom: 2px;
+  display: flex; align-items: flex-start; gap: 7px;
+  padding: 5px 6px; border-radius: 5px; cursor: pointer;
+  transition: background .15s; margin-bottom: 2px;
 }
 .todo-item:hover { background: var(--bg3); }
 .todo-check {
-  width: 15px; height: 15px;
-  border-radius: 50%;
-  border: 1.5px solid var(--border2);
-  flex-shrink: 0;
-  margin-top: 1px;
+  width: 15px; height: 15px; border-radius: 50%;
+  border: 1.5px solid var(--border2); flex-shrink: 0; margin-top: 1px;
   display: flex; align-items: center; justify-content: center;
   transition: all .15s;
 }
-.todo-item.done .todo-check {
-  background: var(--green);
-  border-color: var(--green);
-}
-.todo-item.done .todo-check::after {
-  content: '✓';
-  font-size: 8px;
-  color: #000;
-}
-.todo-text {
-  flex: 1;
-  font-size: 12px;
-  color: var(--text);
-  line-height: 1.4;
-}
+.todo-item.done .todo-check { background: var(--green); border-color: var(--green); }
+.todo-item.done .todo-check::after { content: '✓'; font-size: 8px; color: #000; }
+.todo-text { flex: 1; font-size: 12px; line-height: 1.4; }
 .todo-item.done .todo-text { text-decoration: line-through; color: var(--text3); }
-.todo-del { color: var(--text3); font-size: 14px; opacity: 0; transition: opacity .15s; }
+.todo-del { color: var(--text3); font-size: 13px; opacity: 0; transition: opacity .15s; }
 .todo-item:hover .todo-del { opacity: 1; }
-.priority-badge {
-  font-size: 9px;
-  padding: 1px 5px;
-  border-radius: 10px;
-  flex-shrink: 0;
-  align-self: center;
-}
-.p-high { background: var(--red-bg); color: var(--red); }
+.pbadge { font-size: 9px; padding: 1px 5px; border-radius: 10px; align-self: center; flex-shrink: 0; }
+.p-high { background: var(--red-bg);   color: var(--red);   }
 .p-mid  { background: var(--amber-bg); color: var(--amber); }
 .p-low  { background: var(--green-bg); color: var(--green); }
 
-/* ── LOG LIST (bottom of right panel) ── */
-.log-entry {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 6px;
-  border-radius: 5px;
-  margin-bottom: 2px;
+/* inline form */
+.inline-form { display: flex; gap: 6px; padding: 4px 2px; }
+.inline-input {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r); color: var(--text); padding: 5px 9px; font-size: 12px; outline: none;
 }
-.log-time {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--accent);
-  min-width: 36px;
+.inline-input:focus { border-color: var(--accent); }
+.inline-sel {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r); color: var(--text2); padding: 5px; font-size: 11px; outline: none;
 }
-.log-type-badge {
-  font-size: 10px;
-  padding: 1px 7px;
-  border-radius: 10px;
+.inline-ok {
+  padding: 5px 10px; border-radius: var(--r);
+  background: var(--accent); color: #fff; font-size: 12px;
+  transition: background .15s;
 }
+.inline-ok:hover { background: var(--accent2); }
 
-/* ── MODALS ── */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
+/* log list */
+.log-entry { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 5px; margin-bottom: 2px; }
+.log-time  { font-size: 11px; font-family: var(--font-mono); color: var(--accent); min-width: 36px; }
+.log-badge { font-size: 10px; padding: 1px 7px; border-radius: 10px; }
+.empty-msg { font-size: 11px; color: var(--text3); padding: 6px 4px; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   MODALS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.6);
   z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
 }
-.modal-overlay.hidden { display: none; }
+.modal-bg.hide { display: none; }
 .modal-box {
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  width: 360px;
-  max-width: 95vw;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--rl); padding: 20px;
+  width: 360px; max-width: 95vw;
 }
-.modal-title {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  color: var(--text);
+.modal-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+.form-row { margin-bottom: 12px; }
+.form-label { display: block; font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.form-input, .form-sel, .form-ta {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r); color: var(--text); padding: 7px 10px;
+  font-size: 13px; outline: none; transition: border .15s;
 }
-.form-row {
-  margin-bottom: 12px;
+.form-input:focus, .form-sel:focus, .form-ta:focus { border-color: var(--accent); }
+.form-sel option { background: var(--bg3); }
+.form-ta { resize: vertical; min-height: 60px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+.swatch {
+  width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; transition: border .15s;
 }
-.form-label {
-  display: block;
-  font-size: 11px;
-  color: var(--text3);
-  margin-bottom: 4px;
-}
-.form-input, .form-select, .form-textarea {
-  width: 100%;
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius);
-  color: var(--text);
-  padding: 7px 10px;
-  font-size: 13px;
-  outline: none;
-  transition: border .15s;
-}
-.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
-.form-select option { background: var(--bg3); }
-.form-textarea { resize: vertical; min-height: 60px; }
-.color-swatches { display: flex; gap: 6px; flex-wrap: wrap; }
-.color-swatch {
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: border .15s;
-}
-.color-swatch.selected { border-color: #fff; }
+.swatch.sel { border-color: #fff; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .btn-cancel {
-  padding: 6px 14px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border2);
-  color: var(--text2);
-  font-size: 12px;
-  transition: all .15s;
+  padding: 6px 14px; border-radius: var(--r);
+  border: 1px solid var(--border2); color: var(--text2); font-size: 12px;
+  transition: background .15s;
 }
 .btn-cancel:hover { background: var(--bg3); }
 .btn-save {
-  padding: 6px 16px;
-  border-radius: var(--radius);
-  background: var(--accent);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 6px 16px; border-radius: var(--r);
+  background: var(--accent); color: #fff; font-size: 12px; font-weight: 500;
   transition: background .15s;
 }
 .btn-save:hover { background: var(--accent2); }
-.btn-danger {
-  padding: 6px 12px;
-  border-radius: var(--radius);
-  background: var(--red-bg);
-  border: 1px solid rgba(255,95,95,0.3);
-  color: var(--red);
-  font-size: 12px;
-  transition: all .15s;
+.btn-del {
+  padding: 6px 12px; border-radius: var(--r);
+  background: var(--red-bg); border: 1px solid rgba(255,95,95,.3);
+  color: var(--red); font-size: 12px; transition: all .15s;
 }
-.btn-danger:hover { background: var(--red); color: #fff; }
+.btn-del:hover { background: var(--red); color: #fff; }
 
-/* ── TOAST ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TOAST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 #toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
+  position: fixed; bottom: 20px; left: 50%;
   transform: translateX(-50%) translateY(60px);
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  border-radius: 20px;
-  padding: 8px 18px;
-  font-size: 12px;
-  color: var(--text);
-  z-index: 300;
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 8px 18px;
+  font-size: 12px; z-index: 300; pointer-events: none;
   transition: transform .25s ease;
-  pointer-events: none;
 }
 #toast.show { transform: translateX(-50%) translateY(0); }
 
-/* ── PRIORITY INLINE FORM ── */
-.inline-form {
-  display: flex;
-  gap: 6px;
-  padding: 6px 4px;
-  margin-bottom: 4px;
-}
-.inline-input {
-  flex: 1;
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius);
-  color: var(--text);
-  padding: 5px 9px;
-  font-size: 12px;
-  outline: none;
-}
-.inline-input:focus { border-color: var(--accent); }
-.inline-select {
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius);
-  color: var(--text2);
-  padding: 5px;
-  font-size: 11px;
-  outline: none;
-}
-.inline-add-btn {
-  padding: 5px 10px;
-  border-radius: var(--radius);
-  background: var(--accent);
-  color: #fff;
-  font-size: 12px;
-  transition: background .15s;
-}
-.inline-add-btn:hover { background: var(--accent2); }
+.hide { display: none !important; }
 </style>
 </head>
 <body>
@@ -814,20 +684,18 @@ input, textarea, select { font-family: var(--font); }
   <!-- TOP BAR -->
   <div id="top-bar">
     <span id="app-title">LifePlanner</span>
-
     <div id="date-nav">
-      <button id="prev-btn" title="前へ">&#8249;</button>
-      <span id="current-date-label"></span>
-      <button id="next-btn" title="次へ">&#8250;</button>
+      <button class="nav-arrow" id="prev-btn">&#8249;</button>
+      <span id="date-label"></span>
+      <button class="nav-arrow" id="next-btn">&#8250;</button>
       <button id="today-btn">今日</button>
     </div>
-
-    <div class="quick-log-area">
+    <div id="quick-log">
       <span class="ql-label">瞬間ログ:</span>
-      <button class="ql-btn wake"  data-logtype="起床">☀ 起床</button>
-      <button class="ql-btn enter" data-logtype="入店">→ 入店</button>
-      <button class="ql-btn leave" data-logtype="退店">← 退店</button>
-      <button class="ql-btn home"  data-logtype="帰宅">⌂ 帰宅</button>
+      <button class="ql-btn" data-logtype="起床">☀ 起床</button>
+      <button class="ql-btn" data-logtype="入店">→ 入店</button>
+      <button class="ql-btn" data-logtype="退店">← 退店</button>
+      <button class="ql-btn" data-logtype="帰宅">⌂ 帰宅</button>
     </div>
   </div>
 
@@ -836,7 +704,7 @@ input, textarea, select { font-family: var(--font); }
 
     <!-- LEFT: CALENDAR -->
     <div id="left-panel">
-      <div id="cal-header">
+      <div id="cal-toolbar">
         <div class="view-tabs">
           <button class="view-tab" data-view="day">1Day</button>
           <button class="view-tab active" data-view="week">Weekly</button>
@@ -844,49 +712,44 @@ input, textarea, select { font-family: var(--font); }
         </div>
         <button id="add-event-btn">＋ 予定を追加</button>
       </div>
-      <div id="cal-body">
-        <!-- views injected by JS -->
-      </div>
+      <div id="cal-body"><!-- JS injection --></div>
     </div>
 
-    <!-- RIGHT: TODO + LOGS -->
+    <!-- RIGHT: GOALS / TODO / LOG -->
     <div id="right-panel">
 
-      <!-- GOALS / BIG TODO -->
-      <div class="panel-section" style="flex:1.2">
-        <div class="panel-section-header">
-          <span class="panel-section-title">🎯 大ゴール &amp; ToDo</span>
-          <button class="panel-add-btn" id="add-goal-btn" title="ゴール追加">＋</button>
+      <div class="r-section" style="flex:1.3 1 0">
+        <div class="r-section-head">
+          <span class="r-section-title">🎯 大ゴール &amp; ToDo</span>
+          <button class="r-add-btn" id="btn-add-goal">＋</button>
         </div>
-        <div class="panel-scroll" id="goal-list-wrap"></div>
+        <div class="r-scroll" id="goal-list"></div>
       </div>
 
-      <!-- DAILY TODO -->
-      <div class="panel-section" style="flex:1">
-        <div class="panel-section-header">
-          <span class="panel-section-title">⚡ 今日のToDo</span>
-          <button class="panel-add-btn" id="show-todo-form-btn" title="ToDo追加">＋</button>
+      <div class="r-section" style="flex:1 1 0">
+        <div class="r-section-head">
+          <span class="r-section-title">⚡ 今日のToDo</span>
+          <button class="r-add-btn" id="btn-show-todo-form">＋</button>
         </div>
-        <div class="panel-scroll" id="todo-wrap">
-          <div class="inline-form" id="todo-inline-form" style="display:none">
-            <input class="inline-input" id="todo-input-text" placeholder="タスクを入力..." />
-            <select class="inline-select" id="todo-priority-sel">
+        <div class="r-scroll" id="todo-wrap">
+          <div class="inline-form hide" id="todo-form">
+            <input class="inline-input" id="todo-text-in" placeholder="タスクを入力...">
+            <select class="inline-sel" id="todo-pri-sel">
               <option value="high">高</option>
               <option value="mid" selected>中</option>
               <option value="low">低</option>
             </select>
-            <button class="inline-add-btn" id="todo-inline-add">追加</button>
+            <button class="inline-ok" id="todo-add-ok">追加</button>
           </div>
           <div id="todo-list"></div>
         </div>
       </div>
 
-      <!-- LOG PANEL -->
-      <div class="panel-section" style="flex:0.7; border-bottom:none;">
-        <div class="panel-section-header">
-          <span class="panel-section-title">📌 今日のログ</span>
+      <div class="r-section" style="flex:0 0 auto; border-bottom:none;">
+        <div class="r-section-head">
+          <span class="r-section-title">📌 今日のログ</span>
         </div>
-        <div class="panel-scroll" id="log-list-wrap"></div>
+        <div class="r-scroll" id="log-list" style="max-height:130px"></div>
       </div>
 
     </div>
@@ -894,39 +757,39 @@ input, textarea, select { font-family: var(--font); }
 </div>
 
 <!-- EVENT MODAL -->
-<div class="modal-overlay hidden" id="event-modal">
+<div class="modal-bg hide" id="ev-modal">
   <div class="modal-box">
-    <div class="modal-title" id="event-modal-title">予定を追加</div>
+    <div class="modal-title" id="ev-modal-title">予定を追加</div>
     <div class="form-row">
       <label class="form-label">タイトル</label>
-      <input class="form-input" id="ev-title" placeholder="例：クライアントMTG" />
+      <input class="form-input" id="ev-title">
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="grid2">
       <div class="form-row">
         <label class="form-label">日付</label>
-        <input class="form-input" type="date" id="ev-date" />
+        <input class="form-input" type="date" id="ev-date">
       </div>
       <div class="form-row">
         <label class="form-label">色</label>
-        <div class="color-swatches" id="ev-color-swatches"></div>
+        <div class="swatches" id="ev-swatches"></div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="grid2">
       <div class="form-row">
-        <label class="form-label">開始時刻</label>
-        <input class="form-input" type="time" id="ev-start" value="09:00" />
+        <label class="form-label">開始</label>
+        <input class="form-input" type="time" id="ev-start" value="09:00">
       </div>
       <div class="form-row">
-        <label class="form-label">終了時刻</label>
-        <input class="form-input" type="time" id="ev-end" value="10:00" />
+        <label class="form-label">終了</label>
+        <input class="form-input" type="time" id="ev-end" value="10:00">
       </div>
     </div>
     <div class="form-row">
       <label class="form-label">メモ</label>
-      <textarea class="form-textarea" id="ev-memo" placeholder="メモ（任意）"></textarea>
+      <textarea class="form-ta" id="ev-memo"></textarea>
     </div>
     <div class="modal-actions">
-      <button class="btn-danger hidden" id="ev-delete-btn">削除</button>
+      <button class="btn-del hide" id="ev-del-btn">削除</button>
       <button class="btn-cancel" id="ev-cancel-btn">キャンセル</button>
       <button class="btn-save" id="ev-save-btn">保存</button>
     </div>
@@ -934,16 +797,16 @@ input, textarea, select { font-family: var(--font); }
 </div>
 
 <!-- GOAL MODAL -->
-<div class="modal-overlay hidden" id="goal-modal">
+<div class="modal-bg hide" id="goal-modal">
   <div class="modal-box">
     <div class="modal-title">ゴールを追加</div>
     <div class="form-row">
       <label class="form-label">ゴール名</label>
-      <input class="form-input" id="goal-name-input" placeholder="例：税理士として独立開業" />
+      <input class="form-input" id="goal-name-in" placeholder="例：税理士として独立">
     </div>
     <div class="form-row">
-      <label class="form-label">テーマカラー</label>
-      <div class="color-swatches" id="goal-color-swatches"></div>
+      <label class="form-label">カラー</label>
+      <div class="swatches" id="goal-swatches"></div>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" id="goal-cancel-btn">キャンセル</button>
@@ -953,16 +816,16 @@ input, textarea, select { font-family: var(--font); }
 </div>
 
 <!-- SUBTASK MODAL -->
-<div class="modal-overlay hidden" id="subtask-modal">
+<div class="modal-bg hide" id="sub-modal">
   <div class="modal-box">
-    <div class="modal-title" id="subtask-modal-title">サブタスクを追加</div>
+    <div class="modal-title" id="sub-modal-title">サブタスクを追加</div>
     <div class="form-row">
       <label class="form-label">タスク名</label>
-      <input class="form-input" id="subtask-input" placeholder="例：顧客対応フローを整備する" />
+      <input class="form-input" id="sub-text-in">
     </div>
     <div class="modal-actions">
-      <button class="btn-cancel" id="subtask-cancel-btn">キャンセル</button>
-      <button class="btn-save" id="subtask-save-btn">追加</button>
+      <button class="btn-cancel" id="sub-cancel-btn">キャンセル</button>
+      <button class="btn-save" id="sub-save-btn">追加</button>
     </div>
   </div>
 </div>
@@ -970,743 +833,811 @@ input, textarea, select { font-family: var(--font); }
 <div id="toast"></div>
 
 <script>
-// ─────────────────────────────────────────────
+'use strict';
+// ═══════════════════════════════════════════
 //  UTILS
-// ─────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-const fmt2 = n => String(n).padStart(2,'0');
-const todayStr = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${fmt2(d.getMonth()+1)}-${fmt2(d.getDate())}`;
-};
-const parseDate = s => {
-  const [y,m,d] = s.split('-').map(Number);
-  return new Date(y, m-1, d);
-};
-const fmtDateJP = d => {
-  const days = ['日','月','火','水','木','金','土'];
-  return `${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）`;
-};
-const fmtDateFull = d => {
-  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
-};
-const timeToMin = t => { const [h,m] = t.split(':').map(Number); return h*60+m; };
-const minToTime = m => `${fmt2(Math.floor(m/60))}:${fmt2(m%60)}`;
-const nowTimeStr = () => {
-  const n = new Date();
-  return `${fmt2(n.getHours())}:${fmt2(n.getMinutes())}`;
-};
+// ═══════════════════════════════════════════
+const $  = id => document.getElementById(id);
+const p2 = n  => String(n).padStart(2,'0');
 
-// ─────────────────────────────────────────────
-//  COLORS
-// ─────────────────────────────────────────────
-const EVENT_COLORS = [
-  { bg: '#1d5fa4', border: '#4f8ef7', text: '#b5d4f4', label: 'ブルー' },
-  { bg: '#1a6b47', border: '#34c97a', text: '#9fe1cb', label: 'グリーン' },
-  { bg: '#7a3a8a', border: '#a78bfa', text: '#d4bbfc', label: 'パープル' },
-  { bg: '#8a3a1a', border: '#f87171', text: '#fca5a5', label: 'コーラル' },
-  { bg: '#8a5a0a', border: '#f5a623', text: '#fcd34d', label: 'アンバー' },
-  { bg: '#1a6a70', border: '#2dd4bf', text: '#99f6e4', label: 'ティール' },
-  { bg: '#3a3a5a', border: '#818cf8', text: '#c7d2fe', label: 'インディゴ' },
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+}
+function parseDate(s) {
+  var p = s.split('-');
+  return new Date(+p[0], +p[1]-1, +p[2]);
+}
+function dateStr(d) {
+  return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+}
+function nowTime() {
+  var n = new Date();
+  return p2(n.getHours())+':'+p2(n.getMinutes());
+}
+function timeToMin(t) {
+  var p = t.split(':');
+  return (+p[0])*60+(+p[1]);
+}
+function jpDate(d) {
+  var w = ['日','月','火','水','木','金','土'];
+  return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日（'+w[d.getDay()]+'）';
+}
+function weekStart(d) {
+  // 月曜始まり
+  var day = d.getDay();
+  var diff = (day === 0) ? -6 : 1 - day;
+  var m = new Date(d);
+  m.setDate(d.getDate()+diff);
+  return m;
+}
+
+// ═══════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════
+var HOUR_H = 48; // px per hour
+
+var EV_COLORS = [
+  {bg:'#1d5fa4', border:'#4f8ef7', text:'#b5d4f4'},
+  {bg:'#1a6b47', border:'#34c97a', text:'#9fe1cb'},
+  {bg:'#7a3a8a', border:'#a78bfa', text:'#d4bbfc'},
+  {bg:'#8a3a1a', border:'#f87171', text:'#fca5a5'},
+  {bg:'#8a5a0a', border:'#f5a623', text:'#fcd34d'},
+  {bg:'#1a6a70', border:'#2dd4bf', text:'#99f6e4'},
+  {bg:'#3a3a5a', border:'#818cf8', text:'#c7d2fe'},
 ];
-const LOG_COLORS = {
-  '起床': { dot: '#f5a623', badge_bg: 'rgba(245,166,35,0.15)', badge_text: '#f5a623' },
-  '入店': { dot: '#34c97a', badge_bg: 'rgba(52,201,122,0.15)', badge_text: '#34c97a' },
-  '退店': { dot: '#f87171', badge_bg: 'rgba(248,113,113,0.15)', badge_text: '#f87171' },
-  '帰宅': { dot: '#a78bfa', badge_bg: 'rgba(167,139,250,0.15)', badge_text: '#a78bfa' },
+var LOG_COLORS = {
+  '起床': {dot:'#f5a623', bbg:'rgba(245,166,35,.15)', btxt:'#f5a623'},
+  '入店': {dot:'#34c97a', bbg:'rgba(52,201,122,.15)', btxt:'#34c97a'},
+  '退店': {dot:'#f87171', bbg:'rgba(248,113,113,.15)', btxt:'#f87171'},
+  '帰宅': {dot:'#a78bfa', bbg:'rgba(167,139,250,.15)', btxt:'#a78bfa'},
 };
+var DAY_NAMES = ['月','火','水','木','金','土','日'];
 
-// ─────────────────────────────────────────────
-//  STATE & STORAGE
-// ─────────────────────────────────────────────
-const LS = {
-  get: (k, def) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch { return def; } },
-  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+// ═══════════════════════════════════════════
+//  STORAGE
+// ═══════════════════════════════════════════
+var LS = {
+  get: function(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set: function(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
-let state = {
-  view: 'week',
-  currentDate: todayStr(),
-  events: LS.get('lp_events', []),
-  goals: LS.get('lp_goals', []),
-  todos: LS.get('lp_todos', []),
-  logs: LS.get('lp_logs', []),
+var ST = {
+  view:    'week',
+  date:    todayStr(),
+  events:  LS.get('lp_events',[]),
+  goals:   LS.get('lp_goals',[]),
+  todos:   LS.get('lp_todos',[]),
+  logs:    LS.get('lp_logs',[]),
 };
-const save = () => {
-  LS.set('lp_events', state.events);
-  LS.set('lp_goals', state.goals);
-  LS.set('lp_todos', state.todos);
-  LS.set('lp_logs', state.logs);
-};
-const genId = () => Math.random().toString(36).slice(2,9);
+function save() {
+  LS.set('lp_events', ST.events);
+  LS.set('lp_goals',  ST.goals);
+  LS.set('lp_todos',  ST.todos);
+  LS.set('lp_logs',   ST.logs);
+}
+function uid() { return Math.random().toString(36).slice(2,9); }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
 //  TOAST
-// ─────────────────────────────────────────────
-let toastTimer = null;
-function showToast(msg) {
-  const t = $('toast');
+// ═══════════════════════════════════════════
+var _toastTmr = null;
+function toast(msg) {
+  var t = $('toast');
   t.textContent = msg;
   t.classList.add('show');
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  if(_toastTmr) clearTimeout(_toastTmr);
+  _toastTmr = setTimeout(function(){ t.classList.remove('show'); }, 2200);
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
 //  DATE NAV
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
 function updateDateLabel() {
-  const d = parseDate(state.currentDate);
-  const v = state.view;
-  if (v === 'day') {
-    $('current-date-label').textContent = fmtDateJP(d);
-  } else if (v === 'week') {
-    const mon = getWeekStart(d);
-    const sun = new Date(mon); sun.setDate(sun.getDate()+6);
-    $('current-date-label').textContent = `${mon.getMonth()+1}/${mon.getDate()} – ${sun.getMonth()+1}/${sun.getDate()}`;
+  var d = parseDate(ST.date);
+  if(ST.view==='day') {
+    $('date-label').textContent = jpDate(d);
+  } else if(ST.view==='week') {
+    var mon = weekStart(d);
+    var sun = new Date(mon); sun.setDate(mon.getDate()+6);
+    $('date-label').textContent = (mon.getMonth()+1)+'/'+mon.getDate()+' – '+(sun.getMonth()+1)+'/'+sun.getDate();
   } else {
-    $('current-date-label').textContent = `${d.getFullYear()}年${d.getMonth()+1}月`;
+    $('date-label').textContent = d.getFullYear()+'年'+(d.getMonth()+1)+'月';
   }
 }
-function getWeekStart(d) {
-  const day = d.getDay(); // 0=Sun
-  const diff = (day === 0) ? -6 : 1 - day;
-  const mon = new Date(d);
-  mon.setDate(d.getDate() + diff);
-  return mon;
-}
+$('prev-btn').addEventListener('click', function(){ navigate(-1); });
+$('next-btn').addEventListener('click', function(){ navigate(1); });
+$('today-btn').addEventListener('click', function(){ ST.date=todayStr(); renderAll(); });
 function navigate(dir) {
-  const d = parseDate(state.currentDate);
-  if (state.view === 'day') d.setDate(d.getDate() + dir);
-  else if (state.view === 'week') d.setDate(d.getDate() + dir*7);
-  else d.setMonth(d.getMonth() + dir);
-  state.currentDate = `${d.getFullYear()}-${fmt2(d.getMonth()+1)}-${fmt2(d.getDate())}`;
+  var d = parseDate(ST.date);
+  if(ST.view==='day')   d.setDate(d.getDate()+dir);
+  else if(ST.view==='week') d.setDate(d.getDate()+dir*7);
+  else d.setMonth(d.getMonth()+dir);
+  ST.date = dateStr(d);
   renderAll();
 }
-$('prev-btn').onclick = () => navigate(-1);
-$('next-btn').onclick = () => navigate(1);
-$('today-btn').onclick = () => { state.currentDate = todayStr(); renderAll(); };
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
 //  VIEW TABS
-// ─────────────────────────────────────────────
-document.querySelectorAll('.view-tab').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
+// ═══════════════════════════════════════════
+document.querySelectorAll('.view-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.view-tab').forEach(function(b){ b.classList.remove('active'); });
     btn.classList.add('active');
-    state.view = btn.dataset.view;
-    renderCalendar();
+    ST.view = btn.dataset.view;
     updateDateLabel();
-  };
+    renderCalendar();
+  });
 });
+$('add-event-btn').addEventListener('click', function(){ openEvModal(null); });
 
-// ─────────────────────────────────────────────
-//  CALENDAR RENDER DISPATCH
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
+//  CALENDAR DISPATCH
+// ═══════════════════════════════════════════
 function renderCalendar() {
-  const body = $('cal-body');
+  var body = $('cal-body');
   body.innerHTML = '';
-  if (state.view === 'week') renderWeekView(body);
-  else if (state.view === 'day') renderDayView(body);
-  else renderMonthView(body);
+  if(ST.view==='week')       renderWeek(body);
+  else if(ST.view==='day')   renderDay(body);
+  else                        renderMonth(body);
 }
 
-// ─────────────────────────────────────────────
-//  HOUR HEIGHT
-//  固定48px：スクロールで全24時間を確実に表示
-//  (24h × 48px = 1152px のグリッドを縦スクロール)
-// ─────────────────────────────────────────────
-const HOUR_H = 48;
-function getHourH() {
-  return HOUR_H;
+// ═══════════════════════════════════════════
+//  HELPER – 時間行を描画
+// ═══════════════════════════════════════════
+function addHourLines(parent) {
+  for(var h=0; h<24; h++) {
+    var hr = document.createElement('div');
+    hr.className = 'wk-hour-line';
+    hr.style.top = (h * HOUR_H) + 'px';
+    parent.appendChild(hr);
+    if(h > 0) {
+      var hl = document.createElement('div');
+      hl.className = 'wk-half-line';
+      hl.style.top = (h * HOUR_H - HOUR_H/2) + 'px';
+      parent.appendChild(hl);
+    }
+  }
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
+//  HELPER – 時刻ラベルを描画
+// ═══════════════════════════════════════════
+function addTimeLabels(gutter) {
+  for(var h=0; h<24; h++) {
+    var lbl = document.createElement('div');
+    lbl.className = 'wk-time-label';
+    lbl.style.top = (h * HOUR_H + HOUR_H/2) + 'px';
+    lbl.textContent = p2(h)+':00';
+    gutter.appendChild(lbl);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  HELPER – 赤線を描画
+// ═══════════════════════════════════════════
+function addNowLine(parent) {
+  var now = new Date();
+  var top = (now.getHours()*60 + now.getMinutes()) / 60 * HOUR_H;
+  var line = document.createElement('div');
+  line.className = 'time-now-line';
+  line.style.top = top + 'px';
+  parent.appendChild(line);
+}
+
+// ═══════════════════════════════════════════
+//  HELPER – イベントを描画
+// ═══════════════════════════════════════════
+function renderEvents(parent, events) {
+  for(var i=0; i<events.length; i++) {
+    var ev = events[i];
+    var startMin = timeToMin(ev.start);
+    var endMin   = ev.end ? timeToMin(ev.end) : startMin + 60;
+    var top    = startMin / 60 * HOUR_H;
+    var height = Math.max(HOUR_H*0.5, (endMin-startMin)/60*HOUR_H);
+    var clr = EV_COLORS[ev.colorIdx || 0];
+    var el = document.createElement('div');
+    el.className = 'cal-event';
+    el.style.top    = top+'px';
+    el.style.height = height+'px';
+    el.style.background     = clr.bg;
+    el.style.borderLeftColor= clr.border;
+    el.style.color          = clr.text;
+    el.innerHTML = '<div class="ev-title">'+ev.title+'</div><div class="ev-time">'+ev.start+'–'+(ev.end||'')+'</div>';
+    (function(e){ el.addEventListener('click',function(ev2){ ev2.stopPropagation(); openEvModal(e); }); })(ev);
+    parent.appendChild(el);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  HELPER – ログチップを描画
+// ═══════════════════════════════════════════
+function renderLogChips(parent, logs) {
+  for(var i=0; i<logs.length; i++) {
+    var lg = logs[i];
+    var min = timeToMin(lg.time);
+    var top = min / 60 * HOUR_H;
+    var lc  = LOG_COLORS[lg.type] || {dot:'#888', btxt:'#888'};
+    var chip = document.createElement('div');
+    chip.className = 'log-chip';
+    chip.style.top = (top-8)+'px';
+    var dot  = document.createElement('div');
+    dot.className = 'log-chip-dot';
+    dot.style.background = lc.dot;
+    var txt  = document.createElement('span');
+    txt.className = 'log-chip-text';
+    txt.style.color = lc.btxt;
+    txt.textContent = lg.type+' '+lg.time;
+    chip.appendChild(dot);
+    chip.appendChild(txt);
+    parent.appendChild(chip);
+  }
+}
+
+// ═══════════════════════════════════════════
 //  WEEKLY VIEW
-// ─────────────────────────────────────────────
-function renderWeekView(container) {
-  const hourH = getHourH();
-  const totalH = hourH * 24; // グリッド総高さ px
-  const d = parseDate(state.currentDate);
-  const mon = getWeekStart(d);
-  const days = Array.from({length:7}, (_,i) => {
-    const dd = new Date(mon); dd.setDate(mon.getDate()+i); return dd;
-  });
-  const today = todayStr();
-  const DAY_NAMES = ['月','火','水','木','金','土','日'];
+// ═══════════════════════════════════════════
+function renderWeek(container) {
+  var d   = parseDate(ST.date);
+  var mon = weekStart(d);
+  var tds = todayStr();
 
-  // ── ラッパー構造を構築 ──
-  const wrap = document.createElement('div');
-  wrap.id = 'weekly-view';
-
-  // 曜日ヘッダー行
-  const headerRow = document.createElement('div');
-  headerRow.className = 'week-day-headers';
-  const gutterPlaceholder = document.createElement('div');
-  gutterPlaceholder.className = 'time-gutter';
-  headerRow.appendChild(gutterPlaceholder);
-  days.forEach((dd, i) => {
-    const ds = `${dd.getFullYear()}-${fmt2(dd.getMonth()+1)}-${fmt2(dd.getDate())}`;
-    const isToday = ds === today;
-    const col = document.createElement('div');
-    col.className = 'week-day-col-header' + (isToday ? ' today' : '');
-    if (i === 6) col.style.color = 'var(--red)';
-    if (i === 5) col.style.color = 'var(--accent)';
-    col.dataset.date = ds;
-    col.innerHTML = `<span class="day-num">${dd.getDate()}</span><span>${DAY_NAMES[i]}</span>`;
-    headerRow.appendChild(col);
-  });
-  wrap.appendChild(headerRow);
-
-  // スクロールエリア
-  const scrollArea = document.createElement('div');
-  scrollArea.className = 'week-scroll-area';
-  scrollArea.id = 'week-scroll';
-  wrap.appendChild(scrollArea);
-
-  // week-grid（flex: 左=時刻列, 右=7日グリッド）
-  // ★ 高さを明示的に指定してChromeの高さ0問題を防ぐ
-  const weekGrid = document.createElement('div');
-  weekGrid.className = 'week-grid';
-  weekGrid.style.height = `${totalH}px`;
-  scrollArea.appendChild(weekGrid);
-
-  // 時刻ガター列
-  const gutterCol = document.createElement('div');
-  gutterCol.className = 'time-gutter-col';
-  gutterCol.style.height = `${totalH}px`;
-  weekGrid.appendChild(gutterCol);
-
-  // 時刻ラベル（00:00〜23:00）
-  for (let h = 0; h < 24; h++) {
-    const lbl = document.createElement('div');
-    lbl.className = 'time-label';
-    lbl.style.top = `${h * hourH + hourH / 2}px`;
-    lbl.textContent = `${fmt2(h)}:00`;
-    gutterCol.appendChild(lbl);
+  // 月〜日の日付配列
+  var days = [];
+  for(var i=0; i<7; i++) {
+    var dd = new Date(mon);
+    dd.setDate(mon.getDate()+i);
+    days.push(dd);
   }
 
-  // 7日グリッド
-  const daysGrid = document.createElement('div');
-  daysGrid.className = 'week-days-grid';
-  // ★ 高さを明示してChromeで列が描画されるようにする
-  daysGrid.style.height = `${totalH}px`;
-  weekGrid.appendChild(daysGrid);
+  // ── ルート ──
+  var root = document.createElement('div');
+  root.id = 'weekly-view';
 
-  // 各日の列
-  days.forEach((dd, di) => {
-    const ds = `${dd.getFullYear()}-${fmt2(dd.getMonth()+1)}-${fmt2(dd.getDate())}`;
-    const lane = document.createElement('div');
-    lane.className = 'week-day-lane';
-    lane.style.height = `${totalH}px`;
+  // ── 曜日ヘッダー行 ──
+  var headerRow = document.createElement('div');
+  headerRow.className = 'wk-header-row';
+
+  var hGutter = document.createElement('div');
+  hGutter.className = 'wk-header-gutter';
+  headerRow.appendChild(hGutter);
+
+  for(var i=0; i<7; i++) {
+    var dd  = days[i];
+    var ds  = dateStr(dd);
+    var cell = document.createElement('div');
+    cell.className = 'wk-header-cell';
+    if(ds === tds) cell.classList.add('is-today');
+    if(i === 5) cell.style.color = 'var(--accent)'; // 土
+    if(i === 6) cell.style.color = 'var(--red)';    // 日
+    var numEl = document.createElement('span');
+    numEl.className = 'day-num';
+    numEl.textContent = dd.getDate();
+    var dayEl = document.createElement('span');
+    dayEl.textContent = DAY_NAMES[i];
+    cell.appendChild(numEl);
+    cell.appendChild(dayEl);
+    headerRow.appendChild(cell);
+  }
+  root.appendChild(headerRow);
+
+  // ── スクロールエリア ──
+  var scrollArea = document.createElement('div');
+  scrollArea.className = 'wk-scroll';
+  root.appendChild(scrollArea);
+
+  // ── wk-grid (flex row, 固定高さ) ──
+  var grid = document.createElement('div');
+  grid.className = 'wk-grid';
+  scrollArea.appendChild(grid);
+
+  // ── 時刻ガター ──
+  var gutter = document.createElement('div');
+  gutter.className = 'wk-gutter';
+  addTimeLabels(gutter);
+  grid.appendChild(gutter);
+
+  // ── 7列コンテナ (position:relative → 赤線の基準) ──
+  var cols = document.createElement('div');
+  cols.className = 'wk-cols';
+  grid.appendChild(cols);
+
+  // ── 各曜日列 ──
+  for(var i=0; i<7; i++) {
+    var dd  = days[i];
+    var ds  = dateStr(dd);
+    var lane = document.createElement('div');
+    lane.className = 'wk-lane';
     lane.dataset.date = ds;
 
-    // 時間行（境界線）
-    for (let h = 0; h < 24; h++) {
-      const row = document.createElement('div');
-      row.className = 'hour-row';
-      row.style.cssText = `height:${hourH}px;top:${h*hourH}px;position:absolute;left:0;right:0;`;
-      const half = document.createElement('div');
-      half.className = 'half-line';
-      row.appendChild(half);
-      lane.appendChild(row);
-    }
+    addHourLines(lane);
 
     // クリックで予定追加
-    lane.addEventListener('click', e => {
-      if (e.target.closest('.cal-event') || e.target.closest('.log-chip')) return;
-      const rect = lane.getBoundingClientRect();
-      const y = e.clientY - rect.top;
-      const hh = Math.min(23, Math.floor(y / hourH));
-      const mm = (y % hourH) >= hourH / 2 ? 30 : 0;
-      openEventModal(null, ds, `${fmt2(hh)}:${fmt2(mm)}`, `${fmt2(Math.min(hh+1,23))}:${fmt2(mm)}`);
-    });
+    (function(lane_ds, lane_el){
+      lane_el.addEventListener('click', function(e) {
+        if(e.target.closest('.cal-event') || e.target.closest('.log-chip')) return;
+        var rect = lane_el.getBoundingClientRect();
+        var y  = e.clientY - rect.top;
+        var hh = Math.min(23, Math.floor(y / HOUR_H));
+        var mm = (y % HOUR_H) >= HOUR_H/2 ? 30 : 0;
+        openEvModal(null, lane_ds, p2(hh)+':'+p2(mm), p2(Math.min(hh+1,23))+':'+p2(mm));
+      });
+    })(ds, lane);
 
-    daysGrid.appendChild(lane);
+    // イベント・ログ
+    var evs  = ST.events.filter(function(ev){ return ev.date === ds; });
+    var logs = ST.logs.filter(function(lg){ return lg.date === ds; });
+    renderEvents(lane, evs);
+    renderLogChips(lane, logs);
 
-    // 予定・ログを描画
-    renderEventsInLane(lane, state.events.filter(ev => ev.date === ds), hourH, false);
-    renderLogsInLane(lane, state.logs.filter(lg => lg.date === ds), hourH);
-  });
-
-  // ── 現在時刻の赤線 ──
-  // week-days-grid (position:relative) に対して absolute で配置
-  // left/right を % 計算して今日の列だけに表示
-  const now = new Date();
-  const nowDs = `${now.getFullYear()}-${fmt2(now.getMonth()+1)}-${fmt2(now.getDate())}`;
-  const todayIndex = days.findIndex(dd => {
-    const ds = `${dd.getFullYear()}-${fmt2(dd.getMonth()+1)}-${fmt2(dd.getDate())}`;
-    return ds === nowDs;
-  });
-  if (todayIndex >= 0) {
-    const minOfDay = now.getHours() * 60 + now.getMinutes();
-    const topPx = (minOfDay / 60) * hourH;
-    const colW = 100 / 7;
-    const leftPct = todayIndex * colW;
-    const rightPct = 100 - leftPct - colW;
-
-    const line = document.createElement('div');
-    line.className = 'current-time-line';
-    line.style.cssText = `
-      top:${topPx}px;
-      left:${leftPct}%;
-      right:${rightPct}%;
-    `;
-    daysGrid.appendChild(line);
+    cols.appendChild(lane);
   }
 
-  container.appendChild(wrap);
+  // ── 赤線: cols (position:relative) の中に描画 ──
+  // 今日が表示週に含まれる場合のみ
+  var todayIdx = -1;
+  for(var i=0; i<7; i++) {
+    if(dateStr(days[i]) === tds) { todayIdx = i; break; }
+  }
+  if(todayIdx >= 0) {
+    var now = new Date();
+    var topPx = (now.getHours()*60 + now.getMinutes()) / 60 * HOUR_H;
+    var colW  = 100 / 7;
+    var line  = document.createElement('div');
+    line.className = 'time-now-line';
+    line.style.top   = topPx + 'px';
+    line.style.left  = (todayIdx * colW) + '%';
+    line.style.right = (100 - (todayIdx+1) * colW) + '%';
+    cols.appendChild(line);
+  }
+
+  container.appendChild(root);
 
   // 7時にスクロール
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      scrollArea.scrollTop = hourH * 7;
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      scrollArea.scrollTop = HOUR_H * 7;
     });
   });
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
 //  1DAY VIEW
-// ─────────────────────────────────────────────
-function renderDayView(container) {
-  const hourH = getHourH();
-  const ds = state.currentDate;
+// ═══════════════════════════════════════════
+function renderDay(container) {
+  var ds  = ST.date;
+  var d   = parseDate(ds);
+  var tds = todayStr();
+  var w   = ['日','月','火','水','木','金','土'];
 
-  const wrap = document.createElement('div');
-  wrap.id = 'day-view';
-  wrap.innerHTML = `
-    <div class="day-view-header">${fmtDateFull(parseDate(ds))}（${['日','月','火','水','木','金','土'][parseDate(ds).getDay()]}）</div>
-    <div class="day-scroll-area" id="day-scroll">
-      <div class="day-grid" style="height:${hourH*24}px">
-        <div class="day-time-col" id="day-time-col"></div>
-        <div class="day-events-col" id="day-events-col" style="height:${hourH*24}px"></div>
-      </div>
-    </div>`;
-  container.appendChild(wrap);
+  var root = document.createElement('div');
+  root.id = 'day-view';
 
-  const timeCol = wrap.querySelector('#day-time-col');
-  const evCol = wrap.querySelector('#day-events-col');
+  var hdr = document.createElement('div');
+  hdr.className = 'dv-header';
+  hdr.textContent = d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日（'+w[d.getDay()]+'）';
+  root.appendChild(hdr);
 
-  for (let h = 0; h < 24; h++) {
-    const lbl = document.createElement('div');
-    lbl.className = 'time-label';
-    lbl.style.top = `${h*hourH + hourH/2}px`;
-    lbl.textContent = `${fmt2(h)}:00`;
-    timeCol.appendChild(lbl);
+  var scroll = document.createElement('div');
+  scroll.className = 'dv-scroll';
+  root.appendChild(scroll);
 
-    const row = document.createElement('div');
-    row.className = 'hour-row';
-    row.style.height = `${hourH}px`;
-    row.style.top = `${h*hourH}px`;
-    row.style.position = 'absolute';
-    row.style.left = '0'; row.style.right = '0';
-    const half = document.createElement('div');
-    half.className = 'half-line';
-    row.appendChild(half);
-    evCol.appendChild(row);
-  }
+  var grid = document.createElement('div');
+  grid.className = 'dv-grid';
+  scroll.appendChild(grid);
 
-  evCol.addEventListener('click', e => {
-    if (e.target.closest('.cal-event') || e.target.closest('.log-chip')) return;
-    const rect = evCol.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const hh = Math.floor(y / hourH);
-    const mm = (y % hourH) >= hourH/2 ? 30 : 0;
-    openEventModal(null, ds, `${fmt2(hh)}:${fmt2(mm)}`, `${fmt2(Math.min(hh+1,23))}:${fmt2(mm)}`);
+  var gutter = document.createElement('div');
+  gutter.className = 'dv-gutter';
+  addTimeLabels(gutter);
+  grid.appendChild(gutter);
+
+  var evCol = document.createElement('div');
+  evCol.className = 'dv-events';
+  addHourLines(evCol);
+
+  // クリックで予定追加
+  evCol.addEventListener('click', function(e) {
+    if(e.target.closest('.cal-event') || e.target.closest('.log-chip')) return;
+    var rect = evCol.getBoundingClientRect();
+    var y  = e.clientY - rect.top;
+    var hh = Math.min(23, Math.floor(y / HOUR_H));
+    var mm = (y % HOUR_H) >= HOUR_H/2 ? 30 : 0;
+    openEvModal(null, ds, p2(hh)+':'+p2(mm), p2(Math.min(hh+1,23))+':'+p2(mm));
   });
 
-  const dayEvents = state.events.filter(ev => ev.date === ds);
-  renderEventsInLane(evCol, dayEvents, hourH, true);
-  const dayLogs = state.logs.filter(lg => lg.date === ds);
-  renderLogsInLane(evCol, dayLogs, hourH);
+  var evs  = ST.events.filter(function(ev){ return ev.date === ds; });
+  var logs = ST.logs.filter(function(lg){ return lg.date === ds; });
+  renderEvents(evCol, evs);
+  renderLogChips(evCol, logs);
 
-  // current time line (1Day view)
-  const now = new Date();
-  if (ds === todayStr()) {
-    const minOfDay = now.getHours()*60 + now.getMinutes();
-    const topPx = (minOfDay / 60) * hourH;
-    const line = document.createElement('div');
-    line.className = 'current-time-line';
-    line.style.top = `${topPx}px`;
-    line.style.left = '0';
-    line.style.right = '0';
-    evCol.appendChild(line);
-  }
+  // 赤線（今日のみ）
+  if(ds === tds) addNowLine(evCol);
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const scrollArea = wrap.querySelector('#day-scroll');
-      if (scrollArea) scrollArea.scrollTop = hourH * 7;
+  grid.appendChild(evCol);
+  container.appendChild(root);
+
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      scroll.scrollTop = HOUR_H * 7;
     });
   });
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
 //  MONTHLY VIEW
-// ─────────────────────────────────────────────
-function renderMonthView(container) {
-  const d = parseDate(state.currentDate);
-  const y = d.getFullYear(), m = d.getMonth();
-  const first = new Date(y, m, 1);
-  const last = new Date(y, m+1, 0);
-  const today = todayStr();
-  const DAY_NAMES = ['月','火','水','木','金','土','日'];
+// ═══════════════════════════════════════════
+function renderMonth(container) {
+  var d    = parseDate(ST.date);
+  var y    = d.getFullYear();
+  var m    = d.getMonth();
+  var tds  = todayStr();
+  var first= new Date(y, m, 1);
+  var last = new Date(y, m+1, 0);
 
-  let startDay = first.getDay(); // 0=Sun
-  if (startDay === 0) startDay = 7; // Mon-based
-  startDay -= 1; // 0=Mon
+  // 月曜始まり offset (0=月, …, 6=日)
+  var startDow = first.getDay(); // 0=Sun
+  var offset   = (startDow === 0) ? 6 : startDow - 1;
+  var totalCells = Math.ceil((offset + last.getDate()) / 7) * 7;
 
-  const wrap = document.createElement('div');
-  wrap.id = 'month-view';
-  wrap.innerHTML = `
-    <div class="month-day-labels">
-      ${DAY_NAMES.map(n => `<div class="month-day-label">${n}</div>`).join('')}
-    </div>
-    <div class="month-grid-wrap">
-      <div class="month-grid" id="month-grid"></div>
-    </div>`;
-  container.appendChild(wrap);
+  var root = document.createElement('div');
+  root.id = 'month-view';
 
-  const grid = wrap.querySelector('#month-grid');
-  const totalCells = Math.ceil((startDay + last.getDate()) / 7) * 7;
+  // 曜日ヘッダー
+  var dowRow = document.createElement('div');
+  dowRow.className = 'mv-dow-row';
+  for(var i=0; i<7; i++) {
+    var dc = document.createElement('div');
+    dc.className = 'mv-dow-cell';
+    if(i===5) dc.style.color='var(--accent)';
+    if(i===6) dc.style.color='var(--red)';
+    dc.textContent = DAY_NAMES[i];
+    dowRow.appendChild(dc);
+  }
+  root.appendChild(dowRow);
 
-  for (let i = 0; i < totalCells; i++) {
-    const dayNum = i - startDay + 1;
-    const cell = document.createElement('div');
-    cell.className = 'month-cell';
-    const isOther = dayNum < 1 || dayNum > last.getDate();
-    const cellDate = new Date(y, m, dayNum);
-    const ds = `${cellDate.getFullYear()}-${fmt2(cellDate.getMonth()+1)}-${fmt2(cellDate.getDate())}`;
+  var scroll = document.createElement('div');
+  scroll.className = 'mv-scroll';
+  root.appendChild(scroll);
 
-    if (isOther) {
-      cell.classList.add('other-month');
-      cell.innerHTML = `<div class="mc-num">${cellDate.getDate()}</div>`;
-    } else {
-      if (ds === today) cell.classList.add('today');
-      const dayEvents = state.events.filter(ev => ev.date === ds);
-      const dayLogs = state.logs.filter(lg => lg.date === ds);
-      cell.innerHTML = `
-        <div class="mc-num">${dayNum}</div>
-        <div class="mc-events">
-          ${dayLogs.map(lg => {
-            const lc = LOG_COLORS[lg.type] || {badge_bg:'rgba(255,255,255,0.1)',badge_text:'#999'};
-            return `<div class="mc-event-dot" style="background:${lc.badge_bg};color:${lc.badge_text}">${lg.type} ${lg.time}</div>`;
-          }).join('')}
-          ${dayEvents.map(ev => {
-            const clr = EVENT_COLORS[ev.colorIdx||0];
-            return `<div class="mc-event-dot" style="background:${clr.bg};color:${clr.text}">${ev.start} ${ev.title}</div>`;
-          }).join('')}
-        </div>`;
-      cell.addEventListener('click', () => {
-        state.currentDate = ds;
-        state.view = 'day';
-        document.querySelectorAll('.view-tab').forEach(b => b.classList.toggle('active', b.dataset.view==='day'));
-        renderAll();
-      });
+  var grid = document.createElement('div');
+  grid.className = 'mv-grid';
+  scroll.appendChild(grid);
+
+  for(var ci=0; ci<totalCells; ci++) {
+    var dayNum  = ci - offset + 1;
+    var cellDate= new Date(y, m, dayNum);
+    var ds      = dateStr(cellDate);
+    var isOther = (dayNum < 1 || dayNum > last.getDate());
+
+    var cell = document.createElement('div');
+    cell.className = 'mv-cell';
+    if(isOther)    cell.classList.add('other-month');
+    if(ds === tds) cell.classList.add('is-today');
+
+    var numEl = document.createElement('div');
+    numEl.className = 'mv-cell-num';
+    numEl.textContent = cellDate.getDate();
+    cell.appendChild(numEl);
+
+    if(!isOther) {
+      // ログ
+      var logs = ST.logs.filter(function(lg){ return lg.date === ds; });
+      for(var li=0; li<logs.length; li++) {
+        var lg = logs[li];
+        var lc = LOG_COLORS[lg.type] || {bbg:'rgba(255,255,255,.1)', btxt:'#999'};
+        var dot = document.createElement('div');
+        dot.className = 'mv-dot';
+        dot.style.background = lc.bbg;
+        dot.style.color = lc.btxt;
+        dot.textContent = lg.type+' '+lg.time;
+        cell.appendChild(dot);
+      }
+      // イベント
+      var evs = ST.events.filter(function(ev){ return ev.date === ds; });
+      for(var ei=0; ei<evs.length; ei++) {
+        var ev  = evs[ei];
+        var clr = EV_COLORS[ev.colorIdx || 0];
+        var dot = document.createElement('div');
+        dot.className = 'mv-dot';
+        dot.style.background = clr.bg;
+        dot.style.color      = clr.text;
+        dot.textContent = ev.start+' '+ev.title;
+        cell.appendChild(dot);
+      }
+      // クリックで1Dayへ
+      (function(ds_){ 
+        cell.addEventListener('click', function() {
+          ST.date = ds_;
+          ST.view = 'day';
+          document.querySelectorAll('.view-tab').forEach(function(b){
+            b.classList.toggle('active', b.dataset.view==='day');
+          });
+          updateDateLabel();
+          renderCalendar();
+        });
+      })(ds);
     }
+
     grid.appendChild(cell);
   }
+
+  container.appendChild(root);
 }
 
-// ─────────────────────────────────────────────
-//  EVENTS IN LANE
-// ─────────────────────────────────────────────
-function renderEventsInLane(lane, events, hourH, wide) {
-  events.forEach(ev => {
-    const startMin = timeToMin(ev.start);
-    const endMin = timeToMin(ev.end || ev.start);
-    const top = (startMin / 60) * hourH;
-    const height = Math.max(hourH * 0.5, ((endMin - startMin) / 60) * hourH);
-    const clr = EVENT_COLORS[ev.colorIdx || 0];
-
-    const el = document.createElement('div');
-    el.className = 'cal-event';
-    el.style.cssText = `
-      top:${top}px; height:${height}px;
-      background:${clr.bg}; border-left-color:${clr.border};
-      color:${clr.text};
-    `;
-    el.innerHTML = `<div class="ev-title">${ev.title}</div><div class="ev-time">${ev.start}–${ev.end||''}</div>`;
-    el.addEventListener('click', e => { e.stopPropagation(); openEventModal(ev); });
-    lane.appendChild(el);
-  });
-}
-
-// ─────────────────────────────────────────────
-//  LOGS IN LANE
-// ─────────────────────────────────────────────
-function renderLogsInLane(lane, logs, hourH) {
-  logs.forEach(lg => {
-    const min = timeToMin(lg.time);
-    const top = (min / 60) * hourH;
-    const lc = LOG_COLORS[lg.type] || { dot: '#888', badge_text: '#888' };
-
-    const chip = document.createElement('div');
-    chip.className = 'log-chip';
-    chip.style.top = `${top - 8}px`;
-    chip.innerHTML = `
-      <div class="log-chip-dot" style="background:${lc.dot}"></div>
-      <span class="log-chip-text" style="color:${lc.badge_text}">${lg.type} ${lg.time}</span>`;
-    lane.appendChild(chip);
-  });
-}
-
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
 //  EVENT MODAL
-// ─────────────────────────────────────────────
-let editingEventId = null;
+// ═══════════════════════════════════════════
+var _editEvId  = null;
+var _selEvClr  = 0;
+var _selGlClr  = 0;
+var _editSubGid= null;
 
-function buildColorSwatches(containerId, selectedIdx, onChange) {
-  const cont = $(containerId);
+function buildSwatches(containerId, selIdx, onPick) {
+  var cont = $(containerId);
   cont.innerHTML = '';
-  EVENT_COLORS.forEach((clr, i) => {
-    const sw = document.createElement('div');
-    sw.className = 'color-swatch' + (i === selectedIdx ? ' selected' : '');
-    sw.style.background = clr.border;
-    sw.title = clr.label;
-    sw.onclick = () => {
-      cont.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-      sw.classList.add('selected');
-      onChange(i);
-    };
-    cont.appendChild(sw);
-  });
+  for(var i=0; i<EV_COLORS.length; i++) {
+    (function(idx){
+      var sw = document.createElement('div');
+      sw.className = 'swatch' + (idx===selIdx?' sel':'');
+      sw.style.background = EV_COLORS[idx].border;
+      sw.addEventListener('click', function(){
+        cont.querySelectorAll('.swatch').forEach(function(s){ s.classList.remove('sel'); });
+        sw.classList.add('sel');
+        onPick(idx);
+      });
+      cont.appendChild(sw);
+    })(i);
+  }
 }
 
-let selectedEvColor = 0;
-let selectedGoalColor = 0;
-
-function openEventModal(ev, date, startT, endT) {
-  editingEventId = ev ? ev.id : null;
-  $('event-modal-title').textContent = ev ? '予定を編集' : '予定を追加';
-  $('ev-title').value = ev ? ev.title : '';
-  $('ev-date').value = ev ? ev.date : (date || state.currentDate);
-  $('ev-start').value = ev ? ev.start : (startT || '09:00');
-  $('ev-end').value = ev ? (ev.end || '10:00') : (endT || '10:00');
-  $('ev-memo').value = ev ? (ev.memo || '') : '';
-  selectedEvColor = ev ? (ev.colorIdx || 0) : 0;
-  buildColorSwatches('ev-color-swatches', selectedEvColor, i => { selectedEvColor = i; });
-  $('ev-delete-btn').classList.toggle('hidden', !ev);
-  $('event-modal').classList.remove('hidden');
+function openEvModal(ev, date, startT, endT) {
+  _editEvId = ev ? ev.id : null;
+  _selEvClr = ev ? (ev.colorIdx||0) : 0;
+  $('ev-modal-title').textContent = ev ? '予定を編集' : '予定を追加';
+  $('ev-title').value  = ev ? ev.title  : '';
+  $('ev-date').value   = ev ? ev.date   : (date || ST.date);
+  $('ev-start').value  = ev ? ev.start  : (startT || '09:00');
+  $('ev-end').value    = ev ? (ev.end||'10:00') : (endT || '10:00');
+  $('ev-memo').value   = ev ? (ev.memo||'') : '';
+  buildSwatches('ev-swatches', _selEvClr, function(i){ _selEvClr=i; });
+  $('ev-del-btn').classList.toggle('hide', !ev);
+  $('ev-modal').classList.remove('hide');
   $('ev-title').focus();
 }
-$('ev-cancel-btn').onclick = () => $('event-modal').classList.add('hidden');
-$('event-modal').onclick = e => { if (e.target === $('event-modal')) $('event-modal').classList.add('hidden'); };
-$('ev-save-btn').onclick = () => {
-  const title = $('ev-title').value.trim();
-  if (!title) { $('ev-title').focus(); return; }
-  if (editingEventId) {
-    const ev = state.events.find(e => e.id === editingEventId);
-    if (ev) {
-      ev.title = title;
-      ev.date = $('ev-date').value;
-      ev.start = $('ev-start').value;
-      ev.end = $('ev-end').value;
-      ev.memo = $('ev-memo').value;
-      ev.colorIdx = selectedEvColor;
-    }
+$('ev-cancel-btn').addEventListener('click', function(){ $('ev-modal').classList.add('hide'); });
+$('ev-modal').addEventListener('click', function(e){ if(e.target===$('ev-modal')) $('ev-modal').classList.add('hide'); });
+$('ev-save-btn').addEventListener('click', function() {
+  var title = $('ev-title').value.trim();
+  if(!title){ $('ev-title').focus(); return; }
+  if(_editEvId) {
+    var ev = ST.events.find(function(e){ return e.id===_editEvId; });
+    if(ev){ ev.title=$('ev-title').value; ev.date=$('ev-date').value; ev.start=$('ev-start').value; ev.end=$('ev-end').value; ev.memo=$('ev-memo').value; ev.colorIdx=_selEvClr; }
   } else {
-    state.events.push({
-      id: genId(), title,
-      date: $('ev-date').value,
-      start: $('ev-start').value,
-      end: $('ev-end').value,
-      memo: $('ev-memo').value,
-      colorIdx: selectedEvColor,
-    });
+    ST.events.push({id:uid(), title:title, date:$('ev-date').value, start:$('ev-start').value, end:$('ev-end').value, memo:$('ev-memo').value, colorIdx:_selEvClr});
   }
-  save();
-  $('event-modal').classList.add('hidden');
-  renderCalendar();
-  showToast(editingEventId ? '予定を更新しました' : '予定を追加しました');
-};
-$('ev-delete-btn').onclick = () => {
-  if (!editingEventId) return;
-  state.events = state.events.filter(e => e.id !== editingEventId);
-  save(); $('event-modal').classList.add('hidden'); renderCalendar();
-  showToast('予定を削除しました');
-};
-$('add-event-btn').onclick = () => openEventModal(null);
+  save(); $('ev-modal').classList.add('hide'); renderCalendar();
+  toast(_editEvId?'予定を更新しました':'予定を追加しました');
+});
+$('ev-del-btn').addEventListener('click', function() {
+  if(!_editEvId) return;
+  ST.events = ST.events.filter(function(e){ return e.id!==_editEvId; });
+  save(); $('ev-modal').classList.add('hide'); renderCalendar();
+  toast('予定を削除しました');
+});
 
-// ─────────────────────────────────────────────
-//  GOAL MODAL & RENDER
-// ─────────────────────────────────────────────
-$('add-goal-btn').onclick = () => {
-  $('goal-name-input').value = '';
-  selectedGoalColor = 0;
-  buildColorSwatches('goal-color-swatches', 0, i => { selectedGoalColor = i; });
-  $('goal-modal').classList.remove('hidden');
-  $('goal-name-input').focus();
-};
-$('goal-cancel-btn').onclick = () => $('goal-modal').classList.add('hidden');
-$('goal-modal').onclick = e => { if (e.target === $('goal-modal')) $('goal-modal').classList.add('hidden'); };
-$('goal-save-btn').onclick = () => {
-  const name = $('goal-name-input').value.trim();
-  if (!name) return;
-  state.goals.push({ id: genId(), name, colorIdx: selectedGoalColor, subtasks: [] });
-  save(); $('goal-modal').classList.add('hidden'); renderGoals();
-  showToast('ゴールを追加しました');
-};
+// ═══════════════════════════════════════════
+//  GOAL
+// ═══════════════════════════════════════════
+$('btn-add-goal').addEventListener('click', function() {
+  $('goal-name-in').value = '';
+  _selGlClr = 0;
+  buildSwatches('goal-swatches', 0, function(i){ _selGlClr=i; });
+  $('goal-modal').classList.remove('hide');
+  $('goal-name-in').focus();
+});
+$('goal-cancel-btn').addEventListener('click', function(){ $('goal-modal').classList.add('hide'); });
+$('goal-modal').addEventListener('click', function(e){ if(e.target===$('goal-modal')) $('goal-modal').classList.add('hide'); });
+$('goal-save-btn').addEventListener('click', function() {
+  var name = $('goal-name-in').value.trim();
+  if(!name) return;
+  ST.goals.push({id:uid(), name:name, colorIdx:_selGlClr, subtasks:[]});
+  save(); $('goal-modal').classList.add('hide'); renderGoals();
+  toast('ゴールを追加しました');
+});
 
-let addingSubtaskToGoalId = null;
-$('subtask-cancel-btn').onclick = () => $('subtask-modal').classList.add('hidden');
-$('subtask-modal').onclick = e => { if (e.target === $('subtask-modal')) $('subtask-modal').classList.add('hidden'); };
-$('subtask-save-btn').onclick = () => {
-  const text = $('subtask-input').value.trim();
-  if (!text || !addingSubtaskToGoalId) return;
-  const goal = state.goals.find(g => g.id === addingSubtaskToGoalId);
-  if (goal) { goal.subtasks = goal.subtasks || []; goal.subtasks.push({ id: genId(), text, done: false }); }
-  save(); $('subtask-modal').classList.add('hidden'); renderGoals();
-};
+$('sub-cancel-btn').addEventListener('click', function(){ $('sub-modal').classList.add('hide'); });
+$('sub-modal').addEventListener('click', function(e){ if(e.target===$('sub-modal')) $('sub-modal').classList.add('hide'); });
+$('sub-save-btn').addEventListener('click', function() {
+  var text = $('sub-text-in').value.trim();
+  if(!text || !_editSubGid) return;
+  var g = ST.goals.find(function(g){ return g.id===_editSubGid; });
+  if(g){ g.subtasks = g.subtasks||[]; g.subtasks.push({id:uid(), text:text, done:false}); }
+  save(); $('sub-modal').classList.add('hide'); renderGoals();
+});
 
 function renderGoals() {
-  const wrap = $('goal-list-wrap');
+  var wrap = $('goal-list');
   wrap.innerHTML = '';
-  if (state.goals.length === 0) {
-    wrap.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:8px 4px;">ゴールはまだありません</div>';
+  if(ST.goals.length === 0) {
+    var em = document.createElement('div');
+    em.className = 'empty-msg';
+    em.textContent = 'ゴールはまだありません';
+    wrap.appendChild(em);
     return;
   }
-  state.goals.forEach(goal => {
-    const clr = EVENT_COLORS[goal.colorIdx || 0];
-    const item = document.createElement('div');
+  ST.goals.forEach(function(goal) {
+    var clr  = EV_COLORS[goal.colorIdx||0];
+    var item = document.createElement('div');
     item.className = 'goal-item';
-    item.innerHTML = `
-      <div class="goal-title-row">
-        <div class="goal-color-dot" style="background:${clr.border}"></div>
-        <span class="goal-name">${goal.name}</span>
-        <span class="goal-chevron">›</span>
-        <button class="goal-add-sub" data-gid="${goal.id}" style="font-size:16px;color:var(--text3);padding:0 2px;line-height:1;transition:color .15s">＋</button>
-        <button class="goal-del" data-gid="${goal.id}" style="font-size:14px;color:var(--text3);padding:0 2px;transition:color .15s">✕</button>
-      </div>
-      <div class="goal-subtasks">
-        ${(goal.subtasks||[]).map(st => `
-          <div class="subtask-row${st.done?' done':''}" data-gid="${goal.id}" data-sid="${st.id}">
-            <div class="subtask-check"></div>
-            <span class="subtask-label">${st.text}</span>
-            <button class="subtask-del" data-gid="${goal.id}" data-sid="${st.id}">✕</button>
-          </div>`).join('')}
-      </div>`;
-    wrap.appendChild(item);
 
-    item.querySelector('.goal-title-row').addEventListener('click', e => {
-      if (e.target.closest('.goal-add-sub') || e.target.closest('.goal-del')) return;
-      item.classList.toggle('expanded');
-    });
-    item.querySelector('.goal-add-sub').addEventListener('click', e => {
-      e.stopPropagation();
-      addingSubtaskToGoalId = goal.id;
-      $('subtask-modal-title').textContent = `「${goal.name}」にタスクを追加`;
-      $('subtask-input').value = '';
-      $('subtask-modal').classList.remove('hidden');
-      $('subtask-input').focus();
-    });
-    item.querySelector('.goal-del').addEventListener('click', e => {
-      e.stopPropagation();
-      state.goals = state.goals.filter(g => g.id !== goal.id);
-      save(); renderGoals(); showToast('ゴールを削除しました');
-    });
-    item.querySelectorAll('.subtask-row').forEach(row => {
-      row.addEventListener('click', e => {
-        if (e.target.closest('.subtask-del')) return;
-        const st = (goal.subtasks||[]).find(s => s.id === row.dataset.sid);
-        if (st) { st.done = !st.done; save(); renderGoals(); }
+    var head = document.createElement('div');
+    head.className = 'goal-head';
+
+    var dot = document.createElement('div');
+    dot.className = 'goal-dot';
+    dot.style.background = clr.border;
+
+    var name = document.createElement('span');
+    name.className = 'goal-name';
+    name.textContent = goal.name;
+
+    var chev = document.createElement('span');
+    chev.className = 'goal-chevron';
+    chev.textContent = '›';
+
+    var addSub = document.createElement('button');
+    addSub.textContent = '＋';
+    addSub.style.cssText = 'font-size:15px;color:var(--text3);padding:0 2px;';
+
+    var delGoal = document.createElement('button');
+    delGoal.textContent = '✕';
+    delGoal.style.cssText = 'font-size:13px;color:var(--text3);padding:0 2px;';
+
+    head.appendChild(dot);
+    head.appendChild(name);
+    head.appendChild(chev);
+    head.appendChild(addSub);
+    head.appendChild(delGoal);
+    item.appendChild(head);
+
+    var subs = document.createElement('div');
+    subs.className = 'goal-subs';
+    (goal.subtasks||[]).forEach(function(st) {
+      var row = document.createElement('div');
+      row.className = 'sub-row' + (st.done?' done':'');
+      var chk = document.createElement('div');
+      chk.className = 'sub-check';
+      var lbl = document.createElement('span');
+      lbl.className = 'sub-label';
+      lbl.textContent = st.text;
+      var del = document.createElement('button');
+      del.className = 'sub-del';
+      del.textContent = '✕';
+      row.appendChild(chk); row.appendChild(lbl); row.appendChild(del);
+      subs.appendChild(row);
+
+      row.addEventListener('click', function(e) {
+        if(e.target === del) return;
+        st.done = !st.done; save(); renderGoals();
       });
-    });
-    item.querySelectorAll('.subtask-del').forEach(btn => {
-      btn.addEventListener('click', e => {
+      del.addEventListener('click', function(e) {
         e.stopPropagation();
-        goal.subtasks = (goal.subtasks||[]).filter(s => s.id !== btn.dataset.sid);
+        goal.subtasks = goal.subtasks.filter(function(s){ return s.id!==st.id; });
         save(); renderGoals();
       });
     });
+    item.appendChild(subs);
+
+    head.addEventListener('click', function(e) {
+      if(e.target===addSub || e.target===delGoal) return;
+      item.classList.toggle('open');
+    });
+    addSub.addEventListener('click', function(e) {
+      e.stopPropagation();
+      _editSubGid = goal.id;
+      $('sub-modal-title').textContent = '「'+goal.name+'」にタスクを追加';
+      $('sub-text-in').value = '';
+      $('sub-modal').classList.remove('hide');
+      $('sub-text-in').focus();
+    });
+    delGoal.addEventListener('click', function(e) {
+      e.stopPropagation();
+      ST.goals = ST.goals.filter(function(g){ return g.id!==goal.id; });
+      save(); renderGoals(); toast('ゴールを削除しました');
+    });
+
+    wrap.appendChild(item);
   });
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
 //  TODO
-// ─────────────────────────────────────────────
-$('show-todo-form-btn').onclick = () => {
-  const form = $('todo-inline-form');
-  const isVisible = form.style.display !== 'none';
-  form.style.display = isVisible ? 'none' : 'flex';
-  if (!isVisible) $('todo-input-text').focus();
-};
-$('todo-inline-add').onclick = addTodo;
-$('todo-input-text').addEventListener('keydown', e => { if (e.key === 'Enter') addTodo(); });
+// ═══════════════════════════════════════════
+$('btn-show-todo-form').addEventListener('click', function() {
+  var f = $('todo-form');
+  f.classList.toggle('hide');
+  if(!f.classList.contains('hide')) $('todo-text-in').focus();
+});
+$('todo-add-ok').addEventListener('click', addTodo);
+$('todo-text-in').addEventListener('keydown', function(e){ if(e.key==='Enter') addTodo(); });
 function addTodo() {
-  const text = $('todo-input-text').value.trim();
-  if (!text) return;
-  state.todos.push({ id: genId(), text, priority: $('todo-priority-sel').value, done: false, date: todayStr() });
+  var text = $('todo-text-in').value.trim();
+  if(!text) return;
+  ST.todos.push({id:uid(), text:text, priority:$('todo-pri-sel').value, done:false, date:todayStr()});
   save(); renderTodos();
-  $('todo-input-text').value = '';
-  showToast('ToDoを追加しました');
+  $('todo-text-in').value = '';
+  toast('ToDoを追加しました');
 }
 function renderTodos() {
-  const wrap = $('todo-list');
+  var wrap = $('todo-list');
   wrap.innerHTML = '';
-  const active = state.todos.filter(t => !t.done);
-  const done = state.todos.filter(t => t.done);
-  [...active, ...done].forEach(todo => {
-    const item = document.createElement('div');
-    item.className = 'todo-item' + (todo.done ? ' done' : '');
-    const pBadge = { high:'<span class="priority-badge p-high">高</span>', mid:'<span class="priority-badge p-mid">中</span>', low:'<span class="priority-badge p-low">低</span>' }[todo.priority] || '';
-    item.innerHTML = `
-      <div class="todo-check"></div>
-      <span class="todo-text">${todo.text}</span>
-      ${pBadge}
-      <button class="todo-del" data-id="${todo.id}">✕</button>`;
-    item.addEventListener('click', e => {
-      if (e.target.closest('.todo-del')) return;
+  var active = ST.todos.filter(function(t){ return !t.done; });
+  var done   = ST.todos.filter(function(t){ return  t.done; });
+  var all    = active.concat(done);
+  all.forEach(function(todo) {
+    var item = document.createElement('div');
+    item.className = 'todo-item' + (todo.done?' done':'');
+    var chk  = document.createElement('div'); chk.className  = 'todo-check';
+    var txt  = document.createElement('span'); txt.className  = 'todo-text'; txt.textContent = todo.text;
+    var pbg  = {high:'p-high',mid:'p-mid',low:'p-low'}[todo.priority]||'p-mid';
+    var plab = {high:'高',mid:'中',low:'低'}[todo.priority]||'中';
+    var pb   = document.createElement('span'); pb.className = 'pbadge '+pbg; pb.textContent = plab;
+    var del  = document.createElement('button'); del.className = 'todo-del'; del.textContent = '✕';
+    item.appendChild(chk); item.appendChild(txt); item.appendChild(pb); item.appendChild(del);
+    item.addEventListener('click', function(e) {
+      if(e.target===del) return;
       todo.done = !todo.done; save(); renderTodos();
     });
-    item.querySelector('.todo-del').addEventListener('click', e => {
+    del.addEventListener('click', function(e) {
       e.stopPropagation();
-      state.todos = state.todos.filter(t => t.id !== todo.id);
+      ST.todos = ST.todos.filter(function(t){ return t.id!==todo.id; });
       save(); renderTodos();
     });
     wrap.appendChild(item);
   });
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
 //  QUICK LOG
-// ─────────────────────────────────────────────
-document.querySelectorAll('.ql-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const type = btn.dataset.logtype;
-    const time = nowTimeStr();
-    const date = todayStr();
-    state.logs.push({ id: genId(), type, time, date });
-    save();
-    renderLogs();
-    renderCalendar(); // refresh log chips
-    showToast(`${type} ${time} を記録しました`);
+// ═══════════════════════════════════════════
+document.querySelectorAll('.ql-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var type = btn.dataset.logtype;
+    var time = nowTime();
+    var date = todayStr();
+    ST.logs.push({id:uid(), type:type, time:time, date:date});
+    save(); renderLogs(); renderCalendar();
+    toast(type+' '+time+' を記録しました');
   });
 });
 
 function renderLogs() {
-  const wrap = $('log-list-wrap');
+  var wrap = $('log-list');
   wrap.innerHTML = '';
-  const todayLogs = state.logs
-    .filter(lg => lg.date === todayStr())
-    .sort((a,b) => a.time.localeCompare(b.time));
-  if (todayLogs.length === 0) {
-    wrap.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:8px 4px;">今日のログはまだありません</div>';
+  var tds  = todayStr();
+  var logs = ST.logs.filter(function(lg){ return lg.date===tds; });
+  logs.sort(function(a,b){ return a.time.localeCompare(b.time); });
+  if(logs.length === 0) {
+    var em = document.createElement('div');
+    em.className = 'empty-msg';
+    em.textContent = '今日のログはまだありません';
+    wrap.appendChild(em);
     return;
   }
-  todayLogs.forEach(lg => {
-    const lc = LOG_COLORS[lg.type] || {badge_bg:'rgba(255,255,255,0.1)',badge_text:'#999'};
-    const el = document.createElement('div');
-    el.className = 'log-entry';
-    el.innerHTML = `
-      <span class="log-time">${lg.time}</span>
-      <span class="log-type-badge" style="background:${lc.badge_bg};color:${lc.badge_text}">${lg.type}</span>`;
-    wrap.appendChild(el);
+  logs.forEach(function(lg) {
+    var lc  = LOG_COLORS[lg.type] || {bbg:'rgba(255,255,255,.1)',btxt:'#999'};
+    var row = document.createElement('div');
+    row.className = 'log-entry';
+    var t   = document.createElement('span'); t.className='log-time'; t.textContent=lg.time;
+    var b   = document.createElement('span'); b.className='log-badge'; b.textContent=lg.type;
+    b.style.background = lc.bbg; b.style.color = lc.btxt;
+    row.appendChild(t); row.appendChild(b);
+    wrap.appendChild(row);
   });
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
 //  RENDER ALL
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
 function renderAll() {
   updateDateLabel();
   renderCalendar();
@@ -1715,24 +1646,23 @@ function renderAll() {
   renderLogs();
 }
 
-// init
+// ── 初期化 ──
 renderAll();
 
-// 現在時刻ライン — 毎分更新
-setInterval(() => {
-  const lines = document.querySelectorAll('.current-time-line');
-  if (lines.length === 0) return;
-  const now = new Date();
-  const hourH = getHourH();
-  const topPx = (now.getHours() * 60 + now.getMinutes()) / 60 * hourH;
-  lines.forEach(l => { l.style.top = `${topPx}px`; });
+// ── 赤線を毎分更新 ──
+setInterval(function() {
+  var lines = document.querySelectorAll('.time-now-line');
+  if(!lines.length) return;
+  var now  = new Date();
+  var top  = (now.getHours()*60 + now.getMinutes()) / 60 * HOUR_H;
+  lines.forEach(function(l){ l.style.top = top+'px'; });
 }, 60000);
 
-// resize rerender
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => renderCalendar(), 150);
+// ── リサイズ時に再描画（必要最小限） ──
+var _rsz;
+window.addEventListener('resize', function(){
+  clearTimeout(_rsz);
+  _rsz = setTimeout(renderCalendar, 200);
 });
 </script>
 </body>
