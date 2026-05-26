@@ -272,18 +272,20 @@ input, textarea, select { font-family: var(--font); }
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  position: relative;
   -webkit-overflow-scrolling: touch;
   min-height: 0;
 }
+/* week-gridはscroll-areaの直下、flexで左右分割 */
 .week-grid {
   display: flex;
-  position: relative;
+  /* 高さはJSでinlineに設定 */
+  min-height: 100%;
 }
 .time-gutter-col {
   flex: 0 0 var(--time-col-w);
   border-right: 1px solid var(--border);
   position: relative;
+  /* 高さはweek-gridに合わせて伸びる */
 }
 .time-label {
   position: absolute;
@@ -294,17 +296,17 @@ input, textarea, select { font-family: var(--font); }
   transform: translateY(-50%);
   white-space: nowrap;
 }
+/* 7列のグリッドコンテナ。position:relativeで赤線の基準に */
 .week-days-grid {
   flex: 1;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   position: relative;
-  overflow: visible;
 }
+/* 各日の列。高さはJSでinlineに設定 */
 .week-day-lane {
   border-right: 1px solid var(--border);
   position: relative;
-  overflow: visible;
 }
 .week-day-lane:last-child { border-right: none; }
 .hour-row {
@@ -1123,90 +1125,112 @@ function getHourH() {
 // ─────────────────────────────────────────────
 function renderWeekView(container) {
   const hourH = getHourH();
+  const totalH = hourH * 24; // グリッド総高さ px
   const d = parseDate(state.currentDate);
   const mon = getWeekStart(d);
-  const days = Array.from({length:7}, (_,i) => { const dd = new Date(mon); dd.setDate(mon.getDate()+i); return dd; });
+  const days = Array.from({length:7}, (_,i) => {
+    const dd = new Date(mon); dd.setDate(mon.getDate()+i); return dd;
+  });
   const today = todayStr();
   const DAY_NAMES = ['月','火','水','木','金','土','日'];
 
+  // ── ラッパー構造を構築 ──
   const wrap = document.createElement('div');
   wrap.id = 'weekly-view';
-  wrap.innerHTML = `
-    <div class="week-day-headers">
-      <div class="time-gutter"></div>
-      ${days.map((dd,i) => {
-        const ds = `${dd.getFullYear()}-${fmt2(dd.getMonth()+1)}-${fmt2(dd.getDate())}`;
-        const isToday = ds === today;
-        const isSat = i === 5, isSun = i === 6;
-        const color = isSun ? 'color:var(--red);' : isSat ? 'color:var(--accent);' : '';
-        return `<div class="week-day-col-header${isToday?' today':''}" style="${color}" data-date="${ds}">
-          <span class="day-num">${dd.getDate()}</span>
-          <span>${DAY_NAMES[i]}</span>
-        </div>`;
-      }).join('')}
-    </div>
-    <div class="week-scroll-area" id="week-scroll">
-      <div class="week-grid" id="week-grid" style="height:${hourH*24}px">
-        <div class="time-gutter-col" id="time-gutter-col"></div>
-        <div class="week-days-grid" id="week-days-grid"></div>
-      </div>
-    </div>`;
-  container.appendChild(wrap);
 
-  // time labels + hour rows
-  const gutterCol = wrap.querySelector('#time-gutter-col');
+  // 曜日ヘッダー行
+  const headerRow = document.createElement('div');
+  headerRow.className = 'week-day-headers';
+  const gutterPlaceholder = document.createElement('div');
+  gutterPlaceholder.className = 'time-gutter';
+  headerRow.appendChild(gutterPlaceholder);
+  days.forEach((dd, i) => {
+    const ds = `${dd.getFullYear()}-${fmt2(dd.getMonth()+1)}-${fmt2(dd.getDate())}`;
+    const isToday = ds === today;
+    const col = document.createElement('div');
+    col.className = 'week-day-col-header' + (isToday ? ' today' : '');
+    if (i === 6) col.style.color = 'var(--red)';
+    if (i === 5) col.style.color = 'var(--accent)';
+    col.dataset.date = ds;
+    col.innerHTML = `<span class="day-num">${dd.getDate()}</span><span>${DAY_NAMES[i]}</span>`;
+    headerRow.appendChild(col);
+  });
+  wrap.appendChild(headerRow);
+
+  // スクロールエリア
+  const scrollArea = document.createElement('div');
+  scrollArea.className = 'week-scroll-area';
+  scrollArea.id = 'week-scroll';
+  wrap.appendChild(scrollArea);
+
+  // week-grid（flex: 左=時刻列, 右=7日グリッド）
+  // ★ 高さを明示的に指定してChromeの高さ0問題を防ぐ
+  const weekGrid = document.createElement('div');
+  weekGrid.className = 'week-grid';
+  weekGrid.style.height = `${totalH}px`;
+  scrollArea.appendChild(weekGrid);
+
+  // 時刻ガター列
+  const gutterCol = document.createElement('div');
+  gutterCol.className = 'time-gutter-col';
+  gutterCol.style.height = `${totalH}px`;
+  weekGrid.appendChild(gutterCol);
+
+  // 時刻ラベル（00:00〜23:00）
   for (let h = 0; h < 24; h++) {
     const lbl = document.createElement('div');
     lbl.className = 'time-label';
-    lbl.style.top = `${h * hourH + hourH/2}px`;
+    lbl.style.top = `${h * hourH + hourH / 2}px`;
     lbl.textContent = `${fmt2(h)}:00`;
     gutterCol.appendChild(lbl);
   }
 
-  const daysGrid = wrap.querySelector('#week-days-grid');
+  // 7日グリッド
+  const daysGrid = document.createElement('div');
+  daysGrid.className = 'week-days-grid';
+  // ★ 高さを明示してChromeで列が描画されるようにする
+  daysGrid.style.height = `${totalH}px`;
+  weekGrid.appendChild(daysGrid);
+
+  // 各日の列
   days.forEach((dd, di) => {
     const ds = `${dd.getFullYear()}-${fmt2(dd.getMonth()+1)}-${fmt2(dd.getDate())}`;
     const lane = document.createElement('div');
     lane.className = 'week-day-lane';
-    lane.style.height = `${hourH*24}px`;
+    lane.style.height = `${totalH}px`;
     lane.dataset.date = ds;
 
+    // 時間行（境界線）
     for (let h = 0; h < 24; h++) {
       const row = document.createElement('div');
       row.className = 'hour-row';
-      row.style.height = `${hourH}px`;
-      row.style.top = `${h*hourH}px`;
-      row.style.position = 'absolute';
-      row.style.left = '0'; row.style.right = '0';
+      row.style.cssText = `height:${hourH}px;top:${h*hourH}px;position:absolute;left:0;right:0;`;
       const half = document.createElement('div');
       half.className = 'half-line';
       row.appendChild(half);
       lane.appendChild(row);
     }
 
-    // click to add
+    // クリックで予定追加
     lane.addEventListener('click', e => {
       if (e.target.closest('.cal-event') || e.target.closest('.log-chip')) return;
       const rect = lane.getBoundingClientRect();
       const y = e.clientY - rect.top;
-      const hh = Math.floor(y / hourH);
-      const mm = (y % hourH) >= hourH/2 ? 30 : 0;
+      const hh = Math.min(23, Math.floor(y / hourH));
+      const mm = (y % hourH) >= hourH / 2 ? 30 : 0;
       openEventModal(null, ds, `${fmt2(hh)}:${fmt2(mm)}`, `${fmt2(Math.min(hh+1,23))}:${fmt2(mm)}`);
     });
 
     daysGrid.appendChild(lane);
 
-    // events
-    const dayEvents = state.events.filter(ev => ev.date === ds);
-    renderEventsInLane(lane, dayEvents, hourH, false);
-
-    // logs
-    const todayLogs = state.logs.filter(lg => lg.date === ds);
-    renderLogsInLane(lane, todayLogs, hourH);
+    // 予定・ログを描画
+    renderEventsInLane(lane, state.events.filter(ev => ev.date === ds), hourH, false);
+    renderLogsInLane(lane, state.logs.filter(lg => lg.date === ds), hourH);
   });
 
-  // current time line — week-days-grid全体に対してabsoluteで描画
-  // (Chromeでdisplay:gridの子にabsoluteが正しく機能しない問題を回避)
+  // ── 現在時刻の赤線 ──
+  // week-days-grid (position:relative) に対して absolute で配置
+  // left/right を % 計算して今日の列だけに表示
   const now = new Date();
   const nowDs = `${now.getFullYear()}-${fmt2(now.getMonth()+1)}-${fmt2(now.getDate())}`;
   const todayIndex = days.findIndex(dd => {
@@ -1214,23 +1238,28 @@ function renderWeekView(container) {
     return ds === nowDs;
   });
   if (todayIndex >= 0) {
-    const minOfDay = now.getHours()*60 + now.getMinutes();
+    const minOfDay = now.getHours() * 60 + now.getMinutes();
     const topPx = (minOfDay / 60) * hourH;
-    // グリッド全体（7列）に対して横幅を1/7に計算して位置を合わせる
-    const pct = (todayIndex / 7) * 100;
+    const colW = 100 / 7;
+    const leftPct = todayIndex * colW;
+    const rightPct = 100 - leftPct - colW;
+
     const line = document.createElement('div');
     line.className = 'current-time-line';
-    line.style.top = `${topPx}px`;
-    line.style.left = `${pct}%`;
-    line.style.right = `${100 - pct - (100/7)}%`;
+    line.style.cssText = `
+      top:${topPx}px;
+      left:${leftPct}%;
+      right:${rightPct}%;
+    `;
     daysGrid.appendChild(line);
   }
 
-  // scroll to 7am
+  container.appendChild(wrap);
+
+  // 7時にスクロール
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      const scrollArea = wrap.querySelector('#week-scroll');
-      if (scrollArea) scrollArea.scrollTop = hourH * 7;
+      scrollArea.scrollTop = hourH * 7;
     });
   });
 }
@@ -1689,14 +1718,13 @@ function renderAll() {
 // init
 renderAll();
 
-// current time indicator updater (毎分更新)
+// 現在時刻ライン — 毎分更新
 setInterval(() => {
   const lines = document.querySelectorAll('.current-time-line');
   if (lines.length === 0) return;
   const now = new Date();
   const hourH = getHourH();
-  const minOfDay = now.getHours()*60 + now.getMinutes();
-  const topPx = (minOfDay / 60) * hourH;
+  const topPx = (now.getHours() * 60 + now.getMinutes()) / 60 * hourH;
   lines.forEach(l => { l.style.top = `${topPx}px`; });
 }, 60000);
 
