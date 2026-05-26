@@ -299,10 +299,12 @@ input, textarea, select { font-family: var(--font); }
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   position: relative;
+  overflow: visible;
 }
 .week-day-lane {
   border-right: 1px solid var(--border);
   position: relative;
+  overflow: visible;
 }
 .week-day-lane:last-child { border-right: none; }
 .hour-row {
@@ -369,6 +371,7 @@ input, textarea, select { font-family: var(--font); }
 .day-events-col {
   flex: 1;
   position: relative;
+  overflow: visible;
 }
 
 /* ── MONTHLY VIEW ── */
@@ -1202,17 +1205,25 @@ function renderWeekView(container) {
     renderLogsInLane(lane, todayLogs, hourH);
   });
 
-  // current time line
+  // current time line — week-days-grid全体に対してabsoluteで描画
+  // (Chromeでdisplay:gridの子にabsoluteが正しく機能しない問題を回避)
   const now = new Date();
   const nowDs = `${now.getFullYear()}-${fmt2(now.getMonth()+1)}-${fmt2(now.getDate())}`;
-  const todayLane = daysGrid.querySelector(`[data-date="${nowDs}"]`);
-  if (todayLane) {
+  const todayIndex = days.findIndex(dd => {
+    const ds = `${dd.getFullYear()}-${fmt2(dd.getMonth()+1)}-${fmt2(dd.getDate())}`;
+    return ds === nowDs;
+  });
+  if (todayIndex >= 0) {
     const minOfDay = now.getHours()*60 + now.getMinutes();
-    const topPx = (minOfDay / 1440) * hourH * 24;
+    const topPx = (minOfDay / 60) * hourH;
+    // グリッド全体（7列）に対して横幅を1/7に計算して位置を合わせる
+    const pct = (todayIndex / 7) * 100;
     const line = document.createElement('div');
     line.className = 'current-time-line';
     line.style.top = `${topPx}px`;
-    todayLane.appendChild(line);
+    line.style.left = `${pct}%`;
+    line.style.right = `${100 - pct - (100/7)}%`;
+    daysGrid.appendChild(line);
   }
 
   // scroll to 7am
@@ -1279,14 +1290,16 @@ function renderDayView(container) {
   const dayLogs = state.logs.filter(lg => lg.date === ds);
   renderLogsInLane(evCol, dayLogs, hourH);
 
-  // current time line
+  // current time line (1Day view)
   const now = new Date();
   if (ds === todayStr()) {
     const minOfDay = now.getHours()*60 + now.getMinutes();
-    const topPx = (minOfDay / 1440) * hourH * 24;
+    const topPx = (minOfDay / 60) * hourH;
     const line = document.createElement('div');
     line.className = 'current-time-line';
     line.style.top = `${topPx}px`;
+    line.style.left = '0';
+    line.style.right = '0';
     evCol.appendChild(line);
   }
 
@@ -1676,16 +1689,16 @@ function renderAll() {
 // init
 renderAll();
 
-// current time indicator updater
+// current time indicator updater (毎分更新)
 setInterval(() => {
   const lines = document.querySelectorAll('.current-time-line');
   if (lines.length === 0) return;
   const now = new Date();
   const hourH = getHourH();
   const minOfDay = now.getHours()*60 + now.getMinutes();
-  const topPx = (minOfDay / 1440) * hourH * 24;
+  const topPx = (minOfDay / 60) * hourH;
   lines.forEach(l => { l.style.top = `${topPx}px`; });
-}, 30000);
+}, 60000);
 
 // resize rerender
 let resizeTimer;
