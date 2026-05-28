@@ -269,6 +269,7 @@ input, textarea, select { font-family: var(--font); }
 .wk-grid {
   display: flex;
   flex-direction: row;
+  align-items: stretch; /* これを追加して子要素を強制的に縦に伸ばす */
   height: calc(var(--hour-h) * 24);
   min-height: calc(var(--hour-h) * 24);
 }
@@ -296,7 +297,7 @@ input, textarea, select { font-family: var(--font); }
   display: flex;
   flex-direction: row;
   position: relative;
-  height: calc(var(--hour-h) * 24);
+  height: 100%; /* 明確に親と同じ高さ(100%)にする */
 }
 /* ★ wk-lane: 各曜日列。flex:1 で均等幅。高さを明示。 */
 .wk-lane {
